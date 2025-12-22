@@ -1,0 +1,136 @@
+<div class="min-h-screen bg-gray-50">
+    <nav class="bg-ioc-blue shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <img src="/assets/logo.png" alt="FuelForce Logo"
+                            class="h-10 w-10 rounded-full mr-2 border-2 border-white shadow-sm">
+                        <h1 class="text-2xl font-bold text-white tracking-wider brand-text">FuelForce</h1>
+                    </div>
+                    <div class="hidden sm:ml-10 sm:flex sm:space-x-4">
+                        <a routerLink="/dashboard" routerLinkActive="bg-blue-800 text-white"
+                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">Dashboard</a>
+                        <a routerLink="/customers" routerLinkActive="bg-blue-800 text-white"
+                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">Customers</a>
+                        <a routerLink="/sales" routerLinkActive="bg-blue-800 text-white"
+                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">Sales
+                            Entry</a>
+                        <a routerLink="/manpower" routerLinkActive="bg-blue-800 text-white"
+                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">Manpower</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-900 border-l-4 border-ioc-orange pl-4">Customers</h2>
+            <button (click)="toggleForm()"
+                class="bg-ioc-orange hover:bg-orange-600 text-white font-bold py-2 px-4 rounded shadow-md transition duration-150">
+                {{ showForm ? 'Cancel' : 'Add Customer' }}
+            </button>
+        </div>
+
+        <div *ngIf="showForm" class="bg-white p-6 rounded-xl shadow-lg mb-8 border-t-4 border-ioc-blue">
+            <form [formGroup]="customerForm" (ngSubmit)="onSubmit()">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="name">Customer Name</label>
+                        <input
+                            class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-blue focus:border-transparent"
+                            id="name" type="text" formControlName="name">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="transport_company">Transport
+                            Company</label>
+                        <input
+                            class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-blue focus:border-transparent"
+                            id="transport_company" type="text" formControlName="transport_company">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="address">Address</label>
+                        <textarea
+                            class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-blue focus:border-transparent"
+                            id="address" formControlName="address" rows="2"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="phone_number">Phone
+                            Number</label>
+                        <input
+                            class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-blue focus:border-transparent"
+                            id="phone_number" type="text" formControlName="phone_number">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="email">Email</label>
+                        <input
+                            class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-blue focus:border-transparent"
+                            id="email" type="email" formControlName="email">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="contact_person">Contact
+                            Person</label>
+                        <input
+                            class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-blue focus:border-transparent"
+                            id="contact_person" type="text" formControlName="contact_person">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="contact_person_details">Contact
+                            Person Details</label>
+                        <input
+                            class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-blue focus:border-transparent"
+                            id="contact_person_details" type="text" formControlName="contact_person_details">
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <button
+                        class="bg-ioc-blue hover:bg-blue-800 text-white font-bold py-2 px-4 rounded shadow-md transition duration-150"
+                        type="submit">
+                        Save Customer
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div *ngFor="let customer of customers"
+                class="bg-white overflow-hidden shadow-lg rounded-xl hover:shadow-xl transition duration-300 border-l-4 border-ioc-blue">
+                <div class="px-6 py-6">
+                    <h3 class="text-xl leading-6 font-bold text-gray-900">{{ customer.name }}</h3>
+                    <p class="text-sm text-gray-500 font-medium">{{ customer.transport_company }}</p>
+                    <div class="mt-4 space-y-2">
+                        <p class="text-sm text-gray-600 flex items-center">
+                            <svg class="h-4 w-4 mr-2 text-ioc-orange" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z">
+                                </path>
+                            </svg>
+                            {{ customer.phone_number }}
+                        </p>
+                        <p class="text-sm text-gray-600 flex items-center">
+                            <svg class="h-4 w-4 mr-2 text-ioc-orange" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                </path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            {{ customer.address }}
+                        </p>
+                        <p class="text-lg font-bold text-green-600 mt-2">
+                            Balance: ₹{{ customer.current_balance | number:'1.2-2' }}
+                        </p>
+                    </div>
+                    <div class="mt-6 flex space-x-3">
+                        <a routerLink="/sales" [queryParams]="{ customerId: customer.id }"
+                            class="flex-1 text-center bg-orange-50 text-ioc-orange hover:bg-orange-100 px-3 py-2 rounded-md text-sm font-medium transition duration-150">New
+                            Sale</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

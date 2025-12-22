@@ -1,0 +1,187 @@
+<div class="min-h-screen flex items-center justify-center relative">
+    <div class="absolute inset-0 bg-black opacity-60"></div>
+    <div
+        class="relative z-10 bg-white/95 backdrop-blur-sm p-8 rounded-xl shadow-2xl w-full max-w-2xl border-t-4 border-ioc-orange my-8">
+        <div class="text-center mb-8">
+            <img src="/assets/fuel-force-logo.jpg" alt="FuelForce Logo"
+                class="h-24 w-auto mx-auto mb-4 rounded-lg shadow-lg border-2 border-orange-500">
+            <h1 class="text-4xl font-extrabold text-ioc-blue tracking-tight uppercase">FuelForce</h1>
+            <p class="text-gray-600 mt-2 font-medium">Dealer Registration</p>
+        </div>
+
+        <div *ngIf="successMessage" class="mb-6 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded">
+            <p class="font-bold text-lg">{{ successMessage }}</p>
+            <p class="mt-2">Please save this ID for your records.</p>
+            <div class="mt-4">
+                <a routerLink="/login" class="text-green-700 font-bold underline hover:text-green-900">Proceed to
+                    Login</a>
+            </div>
+        </div>
+
+        <form *ngIf="!successMessage" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Account Details -->
+                <div class="col-span-1 md:col-span-2">
+                    <h3 class="text-lg font-bold text-gray-700 border-b pb-2 mb-4">Account Details</h3>
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="username">Username</label>
+                    <input
+                        class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-orange focus:border-transparent"
+                        id="username" type="text" formControlName="username">
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="password">Password</label>
+                    <input
+                        class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-orange focus:border-transparent"
+                        id="password" type="password" formControlName="password">
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="email">Email</label>
+                    <input
+                        class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-orange focus:border-transparent"
+                        id="email" type="email" formControlName="email">
+                </div>
+
+                <!-- Outlet Details -->
+                <div class="col-span-1 md:col-span-2 mt-4">
+                    <h3 class="text-lg font-bold text-gray-700 border-b pb-2 mb-4">Outlet Details</h3>
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="retail_outlet_name">Retail Outlet
+                        Name</label>
+                    <input
+                        class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-orange focus:border-transparent"
+                        id="retail_outlet_name" type="text" formControlName="retail_outlet_name"
+                        placeholder="e.g. Sri Krishna Fuel Station">
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="phone_number">Phone Number</label>
+                    <div class="flex">
+                        <span
+                            class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm font-medium">
+                            +91
+                        </span>
+                        <input
+                            class="shadow-sm appearance-none border border-gray-300 rounded-r-md w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-orange focus:border-transparent"
+                            id="phone_number" type="text" formControlName="phone_number" placeholder="9876543210"
+                            maxlength="10">
+                    </div>
+                </div>
+
+                <div class="col-span-1 md:col-span-2 mt-4">
+                    <h3 class="text-lg font-bold text-gray-700 border-b pb-2 mb-4">Address Details</h3>
+                </div>
+
+                <div class="col-span-1 md:col-span-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="home_address">Home Address</label>
+                    <textarea
+                        class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-orange focus:border-transparent"
+                        id="home_address" formControlName="home_address" rows="2"
+                        placeholder="House No, Street Name"></textarea>
+                </div>
+
+                <!-- State Dropdown -->
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="state">State</label>
+                    <select
+                        class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-orange focus:border-transparent"
+                        id="state" formControlName="state">
+                        <option value="">Select State</option>
+                        <option *ngFor="let state of states" [value]="state.name">{{ state.name }}</option>
+                    </select>
+                </div>
+
+                <!-- District Dropdown -->
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="district">District</label>
+                    <select
+                        class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-orange focus:border-transparent"
+                        id="district" formControlName="district" [attr.disabled]="districts.length === 0 ? true : null">
+                        <option value="">Select District</option>
+                        <option *ngFor="let district of districts" [value]="district.name">{{ district.name }}</option>
+                    </select>
+                </div>
+
+                <!-- Mandal Dropdown -->
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="mandal">Mandal</label>
+                    <select
+                        class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-orange focus:border-transparent"
+                        id="mandal" formControlName="mandal" [attr.disabled]="mandals.length === 0 ? true : null">
+                        <option value="">Select Mandal</option>
+                        <option *ngFor="let mandal of mandals" [value]="mandal.name">{{ mandal.name }}</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <!-- Other Mandal Input -->
+                <div *ngIf="showOtherMandal">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="other_mandal">Enter Mandal
+                        Name</label>
+                    <input
+                        class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-orange focus:border-transparent"
+                        id="other_mandal" type="text" formControlName="other_mandal">
+                </div>
+
+                <!-- Village (Optional) -->
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="village">Village (Optional)</label>
+                    <input
+                        class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-orange focus:border-transparent"
+                        id="village" type="text" formControlName="village">
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="city">City/Town</label>
+                    <input
+                        class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-orange focus:border-transparent"
+                        id="city" type="text" formControlName="city">
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="zipcode">Zipcode</label>
+                    <input
+                        class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-orange focus:border-transparent"
+                        id="zipcode" type="text" formControlName="zipcode">
+                </div>
+
+                <div class="col-span-1 md:col-span-2 mt-4">
+                    <h3 class="text-lg font-bold text-gray-700 border-b pb-2 mb-4">Contact Details</h3>
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="contact_person">Contact
+                        Person</label>
+                    <input
+                        class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-orange focus:border-transparent"
+                        id="contact_person" type="text" formControlName="contact_person">
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="supervisor">Supervisor</label>
+                    <input
+                        class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-orange focus:border-transparent"
+                        id="supervisor" type="text" formControlName="supervisor">
+                </div>
+            </div>
+
+            <div *ngIf="error" class="mt-6 p-3 bg-red-100 border-l-4 border-red-500 text-red-700 text-sm rounded">
+                {{ error }}
+            </div>
+
+            <div class="flex items-center justify-between mt-8">
+                <button
+                    class="bg-ioc-orange hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline w-full transition duration-300 transform hover:-translate-y-1 shadow-lg"
+                    type="submit">
+                    Register
+                </button>
+            </div>
+            <div class="mt-4 text-center">
+                <a routerLink="/login" class="text-ioc-blue hover:text-blue-800 font-medium">Already have an account?
+                    Sign In</a>
+            </div>
+        </form>
+    </div>
+</div>

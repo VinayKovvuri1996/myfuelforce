@@ -1,0 +1,166 @@
+<div class="min-h-screen bg-gray-50">
+    <nav class="bg-ioc-blue shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center gap-3">
+                        <img src="/assets/fuel-force-logo.jpg" alt="FuelForce Logo"
+                            class="h-14 w-auto rounded-lg border-2 border-orange-500 shadow-lg">
+                        <div class="flex flex-col justify-center">
+                            <h1 class="brand-title text-3xl font-black uppercase tracking-widest leading-none relative"
+                                data-text="FUELFORCE">
+                                FUELFORCE
+                            </h1>
+                            <p class="brand-tagline text-[0.65rem] font-bold uppercase tracking-wider text-blue-200 relative mt-1"
+                                data-text="Powering Your Pumps, Fueling Your Future.">
+                                Powering Your Pumps, Fueling Your Future.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="hidden sm:ml-10 sm:flex sm:space-x-4">
+                        <a routerLink="/dashboard" routerLinkActive="bg-blue-800 text-white"
+                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">
+                            Dashboard
+                        </a>
+                        <a routerLink="/customers" routerLinkActive="bg-blue-800 text-white"
+                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">
+                            Customers
+                        </a>
+                        <a routerLink="/sales" routerLinkActive="bg-blue-800 text-white"
+                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">
+                            Sales Entry
+                        </a>
+                        <a routerLink="/manpower" routerLinkActive="bg-blue-800 text-white"
+                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">
+                            Manpower
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <button (click)="logout()"
+                        class="ml-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-150 shadow-sm">
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="py-10">
+        <header>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+                <h1 class="text-3xl font-bold leading-tight text-gray-900 border-l-4 border-ioc-orange pl-4">
+                    Dashboard Overview
+                </h1>
+            </div>
+        </header>
+        <main>
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div class="px-4 py-8 sm:px-0">
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                        <!-- Card 1: Total Customers -->
+                        <div
+                            class="bg-white overflow-hidden shadow-lg rounded-xl border-t-4 border-ioc-blue hover:shadow-xl transition duration-300">
+                            <div class="px-6 py-8">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
+                                        <svg class="h-8 w-8 text-ioc-blue" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                                            </path>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-5 w-0 flex-1">
+                                        <dt class="text-sm font-medium text-gray-500 truncate uppercase tracking-wider">
+                                            Total Customers
+                                        </dt>
+                                        <dd class="flex items-baseline">
+                                            <div class="text-3xl font-bold text-gray-900">
+                                                5
+                                            </div>
+                                        </dd>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 px-6 py-3">
+                                <div class="text-sm">
+                                    <a routerLink="/customers"
+                                        class="font-medium text-ioc-blue hover:text-blue-800">View
+                                        all customers &rarr;</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 2: Total Sales Today -->
+                        <div
+                            class="bg-white overflow-hidden shadow-lg rounded-xl border-t-4 border-ioc-orange hover:shadow-xl transition duration-300">
+                            <div class="px-6 py-8">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 bg-orange-100 rounded-md p-3">
+                                        <svg class="h-8 w-8 text-ioc-orange" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                            </path>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-5 w-0 flex-1">
+                                        <dt class="text-sm font-medium text-gray-500 truncate uppercase tracking-wider">
+                                            Total Sales (Today)
+                                        </dt>
+                                        <dd class="flex items-baseline">
+                                            <div class="text-3xl font-bold text-gray-900">
+                                                $12,450
+                                            </div>
+                                        </dd>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 px-6 py-3">
+                                <div class="text-sm">
+                                    <a routerLink="/sales"
+                                        class="font-medium text-ioc-orange hover:text-orange-700">View sales report
+                                        &rarr;</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 3: Active Shifts -->
+                        <div
+                            class="bg-white overflow-hidden shadow-lg rounded-xl border-t-4 border-green-500 hover:shadow-xl transition duration-300">
+                            <div class="px-6 py-8">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
+                                        <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                                            </path>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-5 w-0 flex-1">
+                                        <dt class="text-sm font-medium text-gray-500 truncate uppercase tracking-wider">
+                                            Active Shifts
+                                        </dt>
+                                        <dd class="flex items-baseline">
+                                            <div class="text-3xl font-bold text-gray-900">
+                                                5
+                                            </div>
+                                        </dd>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 px-6 py-3">
+                                <div class="text-sm">
+                                    <a routerLink="/manpower"
+                                        class="font-medium text-green-600 hover:text-green-800">Manage shifts &rarr;</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>

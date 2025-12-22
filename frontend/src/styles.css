@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global Background */
+body {
+    background-image: url('assets/antigravity_bg.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+    cursor: url('assets/cursor.png'), auto;
+    /* Custom Cursor */
+    font-family: 'Inter', sans-serif;
+    /* Default font */
+}
+
+/* Brand Font */
+h1,
+.brand-text {
+    font-family: 'Orbitron', sans-serif;
+}
+
+/* Glassmorphism Utilities */
+.glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-dark {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* IOC Colors */
+.text-ioc-orange {
+    color: #F37021;
+}
+
+.bg-ioc-orange {
+    background-color: #F37021;
+}
+
+.border-ioc-orange {
+    border-color: #F37021;
+}
+
+.text-ioc-blue {
+    color: #003366;
+}
+
+.bg-ioc-blue {
+    background-color: #003366;
+}
+
+.border-ioc-blue {
+    border-color: #003366;
+}

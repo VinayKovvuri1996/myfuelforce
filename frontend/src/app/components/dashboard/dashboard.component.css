@@ -1,0 +1,82 @@
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&display=swap');
+
+/* Brand Title Animation */
+.brand-title {
+    font-family: 'Russo One', sans-serif;
+    color: rgba(255, 255, 255, 0.1);
+    /* Ghost text */
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.3);
+    position: relative;
+    display: inline-block;
+}
+
+.brand-title::before {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 100%;
+    color: #EA7708;
+    /* Brand Orange */
+    border-right: 2px solid #fff;
+    /* The "nozzle" tip */
+    overflow: hidden;
+    white-space: nowrap;
+    animation: fill-gas 4s linear infinite;
+    filter: drop-shadow(0 0 5px #EA7708);
+}
+
+/* Tagline Animation */
+.brand-tagline {
+    font-family: 'Russo One', sans-serif;
+    color: rgba(255, 255, 255, 0.1);
+    position: relative;
+    display: inline-block;
+}
+
+.brand-tagline::before {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 100%;
+    color: #4facfe;
+    /* Electric Blue fill for tagline */
+    border-right: 2px solid #fff;
+    overflow: hidden;
+    white-space: nowrap;
+    animation: fill-gas 4s linear infinite;
+    animation-delay: 2s;
+    /* Start halfway through main title */
+}
+
+@keyframes fill-gas {
+    0% {
+        width: 0%;
+        border-right-color: #fff;
+    }
+
+    40% {
+        width: 100%;
+        border-right-color: transparent;
+        /* Hide tip at end */
+    }
+
+    80% {
+        width: 100%;
+        /* Stay full for a bit */
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 0;
+        /* Fade out to reset */
+    }
+
+    100% {
+        width: 0%;
+        opacity: 0;
+    }
+}

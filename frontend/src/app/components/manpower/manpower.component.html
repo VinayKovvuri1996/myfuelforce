@@ -1,0 +1,99 @@
+<div class="min-h-screen bg-gray-50">
+    <nav class="bg-ioc-blue shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <img src="/assets/logo.png" alt="FuelForce Logo"
+                            class="h-10 w-10 rounded-full mr-2 border-2 border-white shadow-sm">
+                        <h1 class="text-2xl font-bold text-white tracking-wider brand-text">FuelForce</h1>
+                    </div>
+                    <div class="hidden sm:ml-10 sm:flex sm:space-x-4">
+                        <a routerLink="/dashboard" routerLinkActive="bg-blue-800 text-white"
+                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">Dashboard</a>
+                        <a routerLink="/customers" routerLinkActive="bg-blue-800 text-white"
+                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">Customers</a>
+                        <a routerLink="/sales" routerLinkActive="bg-blue-800 text-white"
+                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">Sales
+                            Entry</a>
+                        <a routerLink="/manpower" routerLinkActive="bg-blue-800 text-white"
+                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">Manpower</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-bold text-gray-900 mb-8 border-l-4 border-ioc-orange pl-4">Manpower Management</h2>
+
+        <div class="bg-white p-6 rounded-xl shadow-lg mb-8 border-t-4 border-ioc-blue">
+            <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center">
+                <svg class="h-5 w-5 mr-2 text-ioc-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                    </path>
+                </svg>
+                Start New Shift
+            </h3>
+            <form [formGroup]="shiftForm" (ngSubmit)="startShift()">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="user_id">Employee</label>
+                        <select formControlName="user_id"
+                            class="shadow-sm border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-blue focus:border-transparent">
+                            <option *ngFor="let user of users" [value]="user.id">{{ user.username }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="start_time">Start Time</label>
+                        <input type="datetime-local" formControlName="start_time"
+                            class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-blue focus:border-transparent">
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <button
+                        class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow-md transition duration-150"
+                        type="submit">
+                        Start Shift
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="bg-white shadow-lg overflow-hidden sm:rounded-xl border-l-4 border-ioc-orange">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Employee ID</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start
+                            Time</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End
+                            Time</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Action</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <tr *ngFor="let shift of shifts" class="hover:bg-gray-50 transition duration-150">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{{ shift.user_id }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ shift.start_time | date:'short'
+                            }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ shift.end_time ?
+                            (shift.end_time | date:'short') : 'Active' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button *ngIf="!shift.end_time" (click)="endShift(shift.id)"
+                                class="text-red-600 hover:text-red-900 font-bold">End Shift</button>
+                            <span *ngIf="shift.end_time" class="text-gray-400">Completed</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
