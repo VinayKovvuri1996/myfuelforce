@@ -18,6 +18,7 @@ export class SalesComponent implements OnInit {
     salesForm: FormGroup;
     selectedSale: any = null;
     productTypes = ['Petrol', 'Diesel', 'CNG', 'Power', 'XP95', 'Other'];
+    paymentModes = ['Credit', 'Paid'];
     units = [
         { value: 'Litre', label: 'Litre (L)' },
         { value: 'Kilogram', label: 'Kilogram (kg)' },
@@ -34,6 +35,7 @@ export class SalesComponent implements OnInit {
         private fb: FormBuilder,
         private route: ActivatedRoute
     ) {
+        const today = new Date().toISOString().slice(0, 10);
         this.salesForm = this.fb.group({
             customer_id: ['', Validators.required],
             product_type: ['Petrol', Validators.required],
@@ -41,7 +43,13 @@ export class SalesComponent implements OnInit {
             unit: ['Litre', Validators.required],
             price_per_unit: [null, [Validators.required, Validators.min(0.01)]],
             quantity_sold: [null, [Validators.required, Validators.min(0.01)]],
-            total_amount: [{ value: null, disabled: true }]
+            total_amount: [{ value: null, disabled: true }],
+            bill_number: [''],
+            bill_date: [today, Validators.required],
+            supervisor_signed: [''],
+            bill_made_by: [''],
+            advance_cash: [0],
+            payment_mode: ['Credit', Validators.required]
         });
     }
 
@@ -129,19 +137,29 @@ export class SalesComponent implements OnInit {
 
     onSubmit() {
         if (!this.salesForm.valid) {
-            this.error = 'Please fill customer, rate and quantity.';
+            this.error = 'Please fill required sale and bill fields.';
             return;
         }
         this.saving = true;
         this.error = '';
         this.success = '';
         const formData = this.salesForm.getRawValue();
-        this.api.post('sales', formData).subscribe({
+        const payload = {
+            ...formData,
+            customer_id: Number(formData.customer_id),
+            advance_cash: Number(formData.advance_cash || 0),
+            bill_number: formData.bill_number ? String(formData.bill_number).trim() : null,
+            supervisor_signed: formData.supervisor_signed ? String(formData.supervisor_signed).trim() : null,
+            bill_made_by: formData.bill_made_by ? String(formData.bill_made_by).trim() : null,
+            bill_date: formData.bill_date || null
+        };
+        this.api.post('sales', payload).subscribe({
             next: () => {
                 this.saving = false;
                 this.success = 'Sale saved.';
                 this.loadSales();
                 this.loadStock();
+                const today = new Date().toISOString().slice(0, 10);
                 this.salesForm.reset({
                     product_type: 'Petrol',
                     unit: 'Litre',
@@ -149,7 +167,13 @@ export class SalesComponent implements OnInit {
                     quantity_sold: null,
                     total_amount: null,
                     custom_product_name: '',
-                    customer_id: ''
+                    customer_id: '',
+                    bill_number: '',
+                    bill_date: today,
+                    supervisor_signed: '',
+                    bill_made_by: '',
+                    advance_cash: 0,
+                    payment_mode: 'Credit'
                 });
             },
             error: (err) => {

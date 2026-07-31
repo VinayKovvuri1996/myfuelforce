@@ -72,10 +72,27 @@ def create_sale(sale: schemas.SaleCreate, db: Session = Depends(database.get_db)
         raise HTTPException(status_code=404, detail="Customer not found")
 
     data = sale.model_dump()
+    mode = (data.get("payment_mode") or "Credit").strip().title()
+    if mode not in ("Paid", "Credit"):
+        raise HTTPException(status_code=400, detail="payment_mode must be Paid or Credit")
+    data["payment_mode"] = mode
+    data["advance_cash"] = float(data.get("advance_cash") or 0.0)
+    if data["advance_cash"] < 0:
+        raise HTTPException(status_code=400, detail="advance_cash cannot be negative")
+    if data.get("bill_number"):
+        data["bill_number"] = str(data["bill_number"]).strip()
+    for key in ("supervisor_signed", "bill_made_by"):
+        if data.get(key):
+            data[key] = str(data[key]).strip()
+
     db_sale = models.Sale(**data)
     db.add(db_sale)
 
-    customer.current_balance = (customer.current_balance or 0.0) + sale.total_amount
+    # Credit increases outstanding (minus any cash advance collected against this bill).
+    # Paid does not increase customer balance.
+    if mode == "Credit":
+        due = max(0.0, float(sale.total_amount) - data["advance_cash"])
+        customer.current_balance = (customer.current_balance or 0.0) + due
 
     # Deduct from stock by product type (skip Other unless stock row exists)
     fuel = sale.custom_product_name if sale.product_type == "Other" and sale.custom_product_name else sale.product_type

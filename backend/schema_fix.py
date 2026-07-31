@@ -39,6 +39,13 @@ def ensure_schema():
         END $$;
         """,
         "CREATE INDEX IF NOT EXISTS ix_shifts_employee_id ON shifts (employee_id)",
+        "ALTER TABLE sales ADD COLUMN IF NOT EXISTS bill_number VARCHAR",
+        "ALTER TABLE sales ADD COLUMN IF NOT EXISTS bill_date DATE",
+        "ALTER TABLE sales ADD COLUMN IF NOT EXISTS supervisor_signed VARCHAR",
+        "ALTER TABLE sales ADD COLUMN IF NOT EXISTS bill_made_by VARCHAR",
+        "ALTER TABLE sales ADD COLUMN IF NOT EXISTS advance_cash FLOAT DEFAULT 0",
+        "ALTER TABLE sales ADD COLUMN IF NOT EXISTS payment_mode VARCHAR DEFAULT 'Credit'",
+        "CREATE INDEX IF NOT EXISTS ix_sales_bill_number ON sales (bill_number)",
     ]
     with database.engine.begin() as conn:
         for stmt in statements:

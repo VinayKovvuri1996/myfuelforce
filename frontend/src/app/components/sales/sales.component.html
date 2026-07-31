@@ -129,6 +129,43 @@
                             class="shadow-sm appearance-none border border-gray-300 bg-gray-100 rounded w-full py-2 px-3 text-gray-700 font-bold leading-tight focus:outline-none"
                             id="total_amount" type="number" formControlName="total_amount" readonly>
                     </div>
+
+                    <div class="sm:col-span-2 lg:col-span-3 border-t pt-4">
+                        <h4 class="text-sm font-bold text-gray-800 uppercase tracking-wide">Bill & payment</h4>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="bill_number">Bill / Invoice number</label>
+                        <input id="bill_number" type="text" formControlName="bill_number"
+                            class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="bill_date">Bill date</label>
+                        <input id="bill_date" type="date" formControlName="bill_date"
+                            class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="payment_mode">Mode of payment</label>
+                        <select id="payment_mode" formControlName="payment_mode"
+                            class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700">
+                            <option *ngFor="let m of paymentModes" [value]="m">{{ m }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="advance_cash">Advance cash (driver) ₹</label>
+                        <input id="advance_cash" type="number" formControlName="advance_cash" min="0" step="0.01"
+                            class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="bill_made_by">Bill made by</label>
+                        <input id="bill_made_by" type="text" formControlName="bill_made_by"
+                            class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="supervisor_signed">Supervisor / driver signed</label>
+                        <input id="supervisor_signed" type="text" formControlName="supervisor_signed"
+                            class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700">
+                    </div>
                 </div>
 
                 <div class="mt-6">
@@ -152,25 +189,31 @@
                     <thead class="bg-white/40">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Bill #</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quantity</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Mode</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount (₹)</th>
                         </tr>
                     </thead>
                     <tbody class="bg-transparent divide-y divide-gray-200">
                         <tr *ngFor="let sale of sales" (click)="openDetails(sale)"
                             class="hover:bg-orange-50 cursor-pointer">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ sale.timestamp | date:'short' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ (sale.bill_date || sale.timestamp) | date:'shortDate' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ sale.bill_number || '—' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ customerName(sale.customer_id) }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                 {{ sale.product_type === 'Other' ? sale.custom_product_name : sale.product_type }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ sale.quantity_sold }} {{ sale.unit }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <span [class]="sale.payment_mode === 'Paid' ? 'text-green-700 font-semibold' : 'text-amber-700 font-semibold'">
+                                    {{ sale.payment_mode || 'Credit' }}
+                                </span>
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">₹{{ sale.total_amount | number:'1.2-2' }}</td>
                         </tr>
                         <tr *ngIf="!sales.length">
-                            <td colspan="5" class="px-6 py-6 text-center text-gray-500">No sales recorded yet.</td>
+                            <td colspan="6" class="px-6 py-6 text-center text-gray-500">No sales recorded yet.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -186,10 +229,14 @@
                 <h3 class="text-2xl font-bold text-gray-900">Sale details</h3>
                 <button type="button" (click)="closeDetails()" class="text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
             </div>
-            <dl class="space-y-3 text-sm">
+            <dl class="space-y-3 text-sm max-h-[70vh] overflow-y-auto pr-1">
                 <div class="flex justify-between gap-4 border-b pb-2">
-                    <dt class="text-gray-500">Date / time</dt>
-                    <dd class="font-medium">{{ selectedSale.timestamp | date:'medium' }}</dd>
+                    <dt class="text-gray-500">Bill date</dt>
+                    <dd class="font-medium">{{ (selectedSale.bill_date || selectedSale.timestamp) | date:'mediumDate' }}</dd>
+                </div>
+                <div class="flex justify-between gap-4 border-b pb-2">
+                    <dt class="text-gray-500">Bill / Invoice #</dt>
+                    <dd class="font-medium">{{ selectedSale.bill_number || '—' }}</dd>
                 </div>
                 <div class="flex justify-between gap-4 border-b pb-2">
                     <dt class="text-gray-500">Customer</dt>
@@ -200,20 +247,32 @@
                     <dd class="font-medium">{{ selectedSale.product_type === 'Other' ? selectedSale.custom_product_name : selectedSale.product_type }}</dd>
                 </div>
                 <div class="flex justify-between gap-4 border-b pb-2">
-                    <dt class="text-gray-500">Unit</dt>
-                    <dd class="font-medium">{{ selectedSale.unit || '—' }}</dd>
+                    <dt class="text-gray-500">Quantity</dt>
+                    <dd class="font-medium">{{ selectedSale.quantity_sold | number:'1.2-2' }} {{ selectedSale.unit || '' }}</dd>
                 </div>
                 <div class="flex justify-between gap-4 border-b pb-2">
                     <dt class="text-gray-500">Rate per unit</dt>
                     <dd class="font-medium">₹{{ selectedSale.price_per_unit | number:'1.2-2' }}</dd>
                 </div>
                 <div class="flex justify-between gap-4 border-b pb-2">
-                    <dt class="text-gray-500">Quantity</dt>
-                    <dd class="font-medium">{{ selectedSale.quantity_sold | number:'1.2-2' }}</dd>
-                </div>
-                <div class="flex justify-between gap-4">
                     <dt class="text-gray-500">Total amount</dt>
                     <dd class="font-bold text-green-600">₹{{ selectedSale.total_amount | number:'1.2-2' }}</dd>
+                </div>
+                <div class="flex justify-between gap-4 border-b pb-2">
+                    <dt class="text-gray-500">Payment mode</dt>
+                    <dd class="font-medium">{{ selectedSale.payment_mode || 'Credit' }}</dd>
+                </div>
+                <div class="flex justify-between gap-4 border-b pb-2">
+                    <dt class="text-gray-500">Advance cash</dt>
+                    <dd class="font-medium">₹{{ (selectedSale.advance_cash || 0) | number:'1.2-2' }}</dd>
+                </div>
+                <div class="flex justify-between gap-4 border-b pb-2">
+                    <dt class="text-gray-500">Bill made by</dt>
+                    <dd class="font-medium">{{ selectedSale.bill_made_by || '—' }}</dd>
+                </div>
+                <div class="flex justify-between gap-4">
+                    <dt class="text-gray-500">Supervisor / driver signed</dt>
+                    <dd class="font-medium">{{ selectedSale.supervisor_signed || '—' }}</dd>
                 </div>
             </dl>
             <button type="button" (click)="closeDetails()"

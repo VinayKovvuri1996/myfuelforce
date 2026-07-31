@@ -34,9 +34,9 @@
             </button>
         </div>
 
-        <div *ngIf="error" class="mb-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700 rounded">{{ error }}</div>
-        <div *ngIf="success" class="mb-4 p-3 bg-green-100 border-l-4 border-green-500 text-green-700 rounded">{{ success }}</div>
-        <div *ngIf="loading" class="mb-4 page-subtitle">Loading customers…</div>
+        <div *ngIf="error" class="mb-4 p-3 bg-red-100/90 border-l-4 border-red-500 text-red-700 rounded">{{ error }}</div>
+        <div *ngIf="success" class="mb-4 p-3 bg-green-100/90 border-l-4 border-green-500 text-green-700 rounded">{{ success }}</div>
+        <div *ngIf="loading" class="mb-4 panel-glass-static p-4 text-sm text-gray-600">Loading customers…</div>
 
         <div *ngIf="showForm" class="panel-glass-static p-6 mb-8 border-t-4 border-ioc-blue">
             <form [formGroup]="customerForm" (ngSubmit)="onSubmit()">
@@ -79,7 +79,7 @@
 
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <div *ngIf="!loading && customers.length === 0"
-                class="sm:col-span-2 lg:col-span-3 panel-glass-static p-8 text-center text-gray-500 border border-dashed">
+                class="sm:col-span-2 lg:col-span-3 panel-glass-static p-8 text-center text-gray-600 border border-dashed">
                 No customers yet. Click <strong>Add Customer</strong> to create one.
             </div>
             <button type="button" *ngFor="let customer of customers" (click)="openDetails(customer)"
