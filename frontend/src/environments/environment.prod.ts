@@ -1,4 +1,5 @@
 export const environment = {
     production: true,
-    apiUrl: 'https://api.myfuelforce.online'
+    // Empty = same origin (Render all-in-one). Override at build time for split hosting.
+    apiUrl: ''
 };
