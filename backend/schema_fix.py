@@ -14,6 +14,31 @@ def ensure_schema():
         "ALTER TABLE shifts DROP CONSTRAINT IF EXISTS shifts_user_id_fkey",
         "ALTER TABLE shifts DROP CONSTRAINT IF EXISTS shifts_station_id_fkey",
         "ALTER TABLE stocks DROP CONSTRAINT IF EXISTS stocks_station_id_fkey",
+        """
+        CREATE TABLE IF NOT EXISTS employees (
+            id SERIAL PRIMARY KEY,
+            dealer_id VARCHAR NOT NULL REFERENCES users(id),
+            first_name VARCHAR NOT NULL,
+            last_name VARCHAR NOT NULL,
+            contact_number VARCHAR,
+            date_of_joining DATE,
+            address TEXT,
+            role VARCHAR NOT NULL DEFAULT 'Helper',
+            is_active BOOLEAN DEFAULT TRUE,
+            created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW()
+        )
+        """,
+        "CREATE INDEX IF NOT EXISTS ix_employees_dealer_id ON employees (dealer_id)",
+        "ALTER TABLE shifts ADD COLUMN IF NOT EXISTS employee_id INTEGER",
+        """
+        DO $$ BEGIN
+            ALTER TABLE shifts
+                ADD CONSTRAINT shifts_employee_id_fkey
+                FOREIGN KEY (employee_id) REFERENCES employees(id);
+        EXCEPTION WHEN duplicate_object THEN NULL;
+        END $$;
+        """,
+        "CREATE INDEX IF NOT EXISTS ix_shifts_employee_id ON shifts (employee_id)",
     ]
     with database.engine.begin() as conn:
         for stmt in statements:

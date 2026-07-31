@@ -26,33 +26,116 @@
     </nav>
 
     <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
-        <h2 class="page-title text-3xl mb-4">Manpower / Shifts</h2>
-        <div *ngIf="error" class="mb-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700 rounded">{{ error }}</div>
-        <div *ngIf="success" class="mb-4 p-3 bg-green-100 border-l-4 border-green-500 text-green-700 rounded">{{ success }}</div>
+        <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
+            <h2 class="page-title text-3xl">Manpower</h2>
+            <button type="button" (click)="toggleEmployeeForm()"
+                class="btn-glow bg-ioc-orange hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg shadow-md">
+                {{ showEmployeeForm ? 'Cancel' : 'Add Employee' }}
+            </button>
+        </div>
 
-        <div class="panel-glass-static p-6 mb-8 border-t-4 border-ioc-blue">
-            <h3 class="text-lg font-bold text-gray-900 mb-6">Start New Shift</h3>
-            <form [formGroup]="shiftForm" (ngSubmit)="startShift()">
-                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div *ngIf="error" class="mb-4 p-3 bg-red-100/90 border-l-4 border-red-500 text-red-700 rounded">{{ error }}</div>
+        <div *ngIf="success" class="mb-4 p-3 bg-green-100/90 border-l-4 border-green-500 text-green-700 rounded">{{ success }}</div>
+
+        <!-- Add employee -->
+        <div *ngIf="showEmployeeForm" class="panel-glass-static p-6 mb-8 border-t-4 border-ioc-blue">
+            <h3 class="text-lg font-bold text-gray-900 mb-6">Employee details</h3>
+            <form [formGroup]="employeeForm" (ngSubmit)="saveEmployee()">
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Employee name</label>
-                        <input type="text" formControlName="user_id"
-                            class="shadow-sm border border-gray-300 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-ioc-blue">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">First name</label>
+                        <input type="text" formControlName="first_name"
+                            class="input-glass shadow-sm rounded w-full py-2 px-3 text-gray-700">
                     </div>
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Start Time</label>
-                        <input type="datetime-local" formControlName="start_time"
-                            class="shadow-sm border border-gray-300 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-ioc-blue">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Last name</label>
+                        <input type="text" formControlName="last_name"
+                            class="input-glass shadow-sm rounded w-full py-2 px-3 text-gray-700">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Contact number</label>
+                        <input type="text" formControlName="contact_number" maxlength="10"
+                            class="input-glass shadow-sm rounded w-full py-2 px-3 text-gray-700">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Date of joining</label>
+                        <input type="date" formControlName="date_of_joining"
+                            class="input-glass shadow-sm rounded w-full py-2 px-3 text-gray-700">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Role</label>
+                        <select formControlName="role"
+                            class="input-glass shadow-sm rounded w-full py-2 px-3 text-gray-700">
+                            <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-2 lg:col-span-3">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Address</label>
+                        <textarea formControlName="address" rows="2"
+                            class="input-glass shadow-sm rounded w-full py-2 px-3 text-gray-700"></textarea>
                     </div>
                 </div>
                 <div class="mt-6">
-                    <button class="btn-glow bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg" type="submit"
-                        [disabled]="saving">Start Shift</button>
+                    <button type="submit" [disabled]="savingEmployee"
+                        class="btn-glow bg-ioc-blue hover:bg-blue-800 text-white font-bold py-2 px-4 rounded-lg">
+                        Save Employee
+                    </button>
                 </div>
             </form>
         </div>
 
+        <!-- Staff roster -->
+        <h3 class="page-subtitle text-lg font-semibold mb-3">Staff roster</h3>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-10">
+            <div *ngIf="!employees.length"
+                class="sm:col-span-2 lg:col-span-3 panel-glass-static p-8 text-center text-gray-600 border border-dashed">
+                No employees yet. Click <strong>Add Employee</strong> to create staff records.
+            </div>
+            <button type="button" *ngFor="let emp of employees" (click)="openEmployeeDetails(emp)"
+                class="text-left panel-glass overflow-hidden border-l-4 border-ioc-orange cursor-pointer">
+                <div class="px-5 py-5">
+                    <h4 class="text-lg font-bold text-gray-900">{{ fullName(emp) }}</h4>
+                    <p class="text-sm text-ioc-blue font-semibold mt-1">{{ emp.role || '—' }}</p>
+                    <p class="text-sm text-gray-600 mt-2">{{ emp.contact_number || 'No contact' }}</p>
+                    <p class="text-xs text-gray-500 mt-3">Click for full details</p>
+                </div>
+            </button>
+        </div>
+
+        <!-- Start shift -->
+        <div class="panel-glass-static p-6 mb-8 border-t-4 border-green-500">
+            <h3 class="text-lg font-bold text-gray-900 mb-6">Start New Shift</h3>
+            <form [formGroup]="shiftForm" (ngSubmit)="startShift()">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Employee</label>
+                        <select formControlName="employee_id"
+                            class="input-glass shadow-sm rounded w-full py-2 px-3 text-gray-700">
+                            <option value="">Select employee</option>
+                            <option *ngFor="let emp of activeEmployees()" [value]="emp.id">
+                                {{ fullName(emp) }} — {{ emp.role }}
+                            </option>
+                        </select>
+                        <p *ngIf="!activeEmployees().length" class="text-xs text-red-600 mt-1">
+                            Add an employee first before starting a shift.
+                        </p>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Start Time</label>
+                        <input type="datetime-local" formControlName="start_time"
+                            class="input-glass shadow-sm rounded w-full py-2 px-3 text-gray-700">
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <button class="btn-glow bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg"
+                        type="submit" [disabled]="savingShift || !activeEmployees().length">Start Shift</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Shifts table -->
         <div class="panel-glass-static overflow-hidden border-l-4 border-ioc-orange">
+            <div class="px-6 py-4 border-b font-bold text-gray-900">Recent shifts</div>
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-white/40">
                     <tr>
@@ -63,7 +146,7 @@
                     </tr>
                 </thead>
                 <tbody class="bg-transparent divide-y divide-gray-200">
-                    <tr *ngFor="let shift of shifts" (click)="openDetails(shift)"
+                    <tr *ngFor="let shift of shifts" (click)="openShiftDetails(shift)"
                         class="hover:bg-orange-50 cursor-pointer">
                         <td class="px-6 py-4 text-sm font-bold text-gray-900">{{ shift.user_id || '—' }}</td>
                         <td class="px-6 py-4 text-sm text-gray-500">{{ shift.start_time | date:'short' }}</td>
@@ -82,13 +165,46 @@
         </div>
     </div>
 
+    <!-- Employee details popup -->
+    <div *ngIf="selectedEmployee" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+        (click)="closeEmployeeDetails()">
+        <div class="modal-glass max-w-lg w-full p-6 border-t-4 border-ioc-orange"
+            (click)="$event.stopPropagation()">
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-2xl font-bold text-gray-900">{{ fullName(selectedEmployee) }}</h3>
+                <button type="button" (click)="closeEmployeeDetails()" class="text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <dl class="space-y-3 text-sm">
+                <div class="flex justify-between gap-4 border-b pb-2">
+                    <dt class="text-gray-500">Role</dt>
+                    <dd class="font-medium">{{ selectedEmployee.role || '—' }}</dd>
+                </div>
+                <div class="flex justify-between gap-4 border-b pb-2">
+                    <dt class="text-gray-500">Contact</dt>
+                    <dd class="font-medium">{{ selectedEmployee.contact_number || '—' }}</dd>
+                </div>
+                <div class="flex justify-between gap-4 border-b pb-2">
+                    <dt class="text-gray-500">Date of joining</dt>
+                    <dd class="font-medium">{{ selectedEmployee.date_of_joining ? (selectedEmployee.date_of_joining | date:'mediumDate') : '—' }}</dd>
+                </div>
+                <div class="flex justify-between gap-4">
+                    <dt class="text-gray-500">Address</dt>
+                    <dd class="font-medium text-right max-w-[60%]">{{ selectedEmployee.address || '—' }}</dd>
+                </div>
+            </dl>
+            <button type="button" (click)="closeEmployeeDetails()"
+                class="mt-6 w-full bg-gray-100 text-gray-700 font-bold py-2 rounded">Close</button>
+        </div>
+    </div>
+
+    <!-- Shift details popup -->
     <div *ngIf="selectedShift" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
-        (click)="closeDetails()">
+        (click)="closeShiftDetails()">
         <div class="modal-glass max-w-lg w-full p-6 border-t-4 border-green-500"
             (click)="$event.stopPropagation()">
             <div class="flex justify-between items-start mb-4">
                 <h3 class="text-2xl font-bold text-gray-900">Shift details</h3>
-                <button type="button" (click)="closeDetails()" class="text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
+                <button type="button" (click)="closeShiftDetails()" class="text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
             </div>
             <dl class="space-y-3 text-sm">
                 <div class="flex justify-between gap-4 border-b pb-2">
@@ -111,7 +227,7 @@
             <div class="mt-6 flex gap-3">
                 <button *ngIf="!selectedShift.end_time" type="button" (click)="endShift(selectedShift.id)"
                     class="flex-1 bg-red-600 text-white font-bold py-2 rounded">End Shift</button>
-                <button type="button" (click)="closeDetails()"
+                <button type="button" (click)="closeShiftDetails()"
                     class="flex-1 bg-gray-100 text-gray-700 font-bold py-2 rounded">Close</button>
             </div>
         </div>
