@@ -26,7 +26,7 @@ export class ManpowerComponent implements OnInit {
     ];
     employeeForm: FormGroup;
     shiftForm: FormGroup;
-    showEmployeeForm = false;
+    showEmployeeForm = true;
     selectedEmployee: any = null;
     selectedShift: any = null;
     error = '';
@@ -159,7 +159,7 @@ export class ManpowerComponent implements OnInit {
                 this.success = `Employee "${this.fullName(created)}" added.`;
                 this.loadEmployees();
                 this.employeeForm.reset({ role: 'Helper', first_name: '', last_name: '', contact_number: '', date_of_joining: '', address: '' });
-                this.showEmployeeForm = false;
+                this.showEmployeeForm = true;
             },
             error: (err) => {
                 this.savingEmployee = false;

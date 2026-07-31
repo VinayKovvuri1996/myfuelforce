@@ -26,20 +26,22 @@
     </nav>
 
     <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
+        <div class="flex flex-wrap justify-between items-center gap-4 mb-2">
             <h2 class="page-title text-3xl">Manpower</h2>
             <button type="button" (click)="toggleEmployeeForm()"
                 class="btn-glow bg-ioc-orange hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg shadow-md">
-                {{ showEmployeeForm ? 'Cancel' : 'Add Employee' }}
+                {{ showEmployeeForm ? 'Hide form' : 'Add Employee' }}
             </button>
         </div>
+        <p class="page-subtitle mb-6">Add staff with name, contact, joining date, address and role — then start shifts from the roster.</p>
 
         <div *ngIf="error" class="mb-4 p-3 bg-red-100/90 border-l-4 border-red-500 text-red-700 rounded">{{ error }}</div>
         <div *ngIf="success" class="mb-4 p-3 bg-green-100/90 border-l-4 border-green-500 text-green-700 rounded">{{ success }}</div>
 
-        <!-- Add employee -->
-        <div *ngIf="showEmployeeForm" class="panel-glass-static p-6 mb-8 border-t-4 border-ioc-blue">
-            <h3 class="text-lg font-bold text-gray-900 mb-6">Employee details</h3>
+        <!-- Add employee (open by default) -->
+        <div *ngIf="showEmployeeForm" class="panel-glass-static p-6 mb-8 border-t-4 border-ioc-orange">
+            <h3 class="text-xl font-bold text-gray-900 mb-1">Add employee details</h3>
+            <p class="text-sm text-gray-600 mb-6">First name, last name, contact, date of joining, address and role.</p>
             <form [formGroup]="employeeForm" (ngSubmit)="saveEmployee()">
                 <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                     <div>
