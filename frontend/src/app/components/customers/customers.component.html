@@ -36,6 +36,8 @@
         </div>
 
         <div *ngIf="error" class="mb-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700 rounded">{{ error }}</div>
+        <div *ngIf="success" class="mb-4 p-3 bg-green-100 border-l-4 border-green-500 text-green-700 rounded">{{ success }}</div>
+        <div *ngIf="loading" class="mb-4 text-sm text-gray-500">Loading customers…</div>
 
         <div *ngIf="showForm" class="bg-white p-6 rounded-xl shadow-lg mb-8 border-t-4 border-ioc-blue">
             <form [formGroup]="customerForm" (ngSubmit)="onSubmit()">
@@ -98,6 +100,10 @@
         </div>
 
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div *ngIf="!loading && customers.length === 0"
+                class="sm:col-span-2 lg:col-span-3 bg-white rounded-xl shadow p-8 text-center text-gray-500 border border-dashed">
+                No customers yet. Click <strong>Add Customer</strong> to create one — it will also appear in Sales.
+            </div>
             <div *ngFor="let customer of customers"
                 class="bg-white overflow-hidden shadow-lg rounded-xl hover:shadow-xl transition duration-300 border-l-4 border-ioc-blue">
                 <div class="px-6 py-6">

@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
@@ -40,33 +40,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(identity_routes.router)
-app.include_router(customer_routes.router)
-app.include_router(inventory_routes.router)
-app.include_router(sales_routes.router)
-app.include_router(hr_routes.router)
-app.include_router(station_routes.router)
+# All JSON APIs live under /api so Angular routes like /customers and /sales can serve the UI.
+api = APIRouter(prefix="/api")
+api.include_router(identity_routes.router)
+api.include_router(customer_routes.router)
+api.include_router(inventory_routes.router)
+api.include_router(sales_routes.router)
+api.include_router(hr_routes.router)
+api.include_router(station_routes.router)
 
 
-@app.get("/api/health")
+@api.get("/health")
 def health():
     return {"status": "ok", "service": "FuelForce"}
 
 
+app.include_router(api)
+
 _static_dir = Path(__file__).resolve().parent / "static"
 _static_index = _static_dir / "index.html"
-_API_ROOTS = {
-    "auth",
-    "customers",
-    "sales",
-    "manpower",
-    "inventory",
-    "stations",
-    "api",
-    "docs",
-    "redoc",
-    "openapi.json",
-}
 
 
 @app.get("/")
@@ -80,9 +72,10 @@ if _static_dir.exists() and _static_index.exists():
 
     @app.get("/{full_path:path}")
     def spa_fallback(full_path: str):
-        """Serve Angular assets/SPA. Never steal API paths (fixes POST 405 saves)."""
-        root = full_path.split("/", 1)[0]
-        if root in _API_ROOTS:
+        """Serve Angular UI for all non-file routes (API is only under /api)."""
+        if full_path == "api" or full_path.startswith("api/"):
+            from fastapi import HTTPException
+
             raise HTTPException(status_code=404, detail="Not found")
 
         candidate = _static_dir / full_path

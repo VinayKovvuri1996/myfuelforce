@@ -75,7 +75,7 @@ export class SalesComponent implements OnInit {
 
     loadCustomers() {
         this.api.get('customers').subscribe({
-            next: (data) => { this.customers = data; },
+            next: (data) => { this.customers = Array.isArray(data) ? data : []; },
             error: () => { this.error = 'Could not load customers'; }
         });
     }

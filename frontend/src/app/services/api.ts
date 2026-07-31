@@ -25,7 +25,12 @@ export class ApiService {
 
   private url(endpoint: string): string {
     const path = endpoint.replace(/^\//, '');
-    return this.baseUrl ? `${this.baseUrl.replace(/\/$/, '')}/${path}` : `/${path}`;
+    // Production (empty apiUrl) → same-origin /api/...
+    // Local dev → http://localhost:8000/api/...
+    if (this.baseUrl) {
+      return `${this.baseUrl.replace(/\/$/, '')}/api/${path}`;
+    }
+    return `/api/${path}`;
   }
 
   get(endpoint: string): Observable<any> {

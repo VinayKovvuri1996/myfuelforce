@@ -16,7 +16,9 @@ export class CustomersComponent implements OnInit {
     customerForm: FormGroup;
     showForm: boolean = false;
     error = '';
+    success = '';
     saving = false;
+    loading = false;
 
     constructor(private api: ApiService, private fb: FormBuilder) {
         this.customerForm = this.fb.group({
@@ -35,9 +37,16 @@ export class CustomersComponent implements OnInit {
     }
 
     loadCustomers() {
+        this.loading = true;
         this.api.get('customers').subscribe({
-            next: (data) => { this.customers = data; },
-            error: (err) => { this.error = err?.error?.detail || 'Failed to load customers'; }
+            next: (data) => {
+                this.customers = Array.isArray(data) ? data : [];
+                this.loading = false;
+            },
+            error: (err) => {
+                this.loading = false;
+                this.error = err?.error?.detail || 'Failed to load customers';
+            }
         });
     }
 
@@ -48,11 +57,17 @@ export class CustomersComponent implements OnInit {
         }
         this.saving = true;
         this.error = '';
+        this.success = '';
         this.api.post('customers', this.customerForm.value).subscribe({
-            next: () => {
+            next: (created) => {
                 this.saving = false;
+                this.success = `Customer "${created?.name || 'saved'}" added.`;
+                // Show immediately even before reload finishes
+                if (created?.id) {
+                    this.customers = [created, ...this.customers.filter(c => c.id !== created.id)];
+                }
                 this.loadCustomers();
-                this.customerForm.reset();
+                this.customerForm.reset({ contact_person_details: '' });
                 this.showForm = false;
             },
             error: (err) => {
@@ -67,5 +82,6 @@ export class CustomersComponent implements OnInit {
     toggleForm() {
         this.showForm = !this.showForm;
         this.error = '';
+        this.success = '';
     }
 }
