@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
@@ -59,26 +59,82 @@ app.include_router(api)
 
 _static_dir = Path(__file__).resolve().parent / "static"
 _static_index = _static_dir / "index.html"
+_ASSET_SUFFIXES = {
+    ".js",
+    ".css",
+    ".map",
+    ".ico",
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".gif",
+    ".webp",
+    ".svg",
+    ".woff",
+    ".woff2",
+    ".ttf",
+    ".eot",
+    ".json",
+    ".txt",
+}
+
+
+def _is_under_static(path: Path) -> bool:
+    try:
+        path.resolve().relative_to(_static_dir.resolve())
+        return True
+    except ValueError:
+        return False
+
+
+def _file_response(path: Path, *, no_cache: bool = False) -> FileResponse:
+    headers = {}
+    if no_cache:
+        headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        headers["Pragma"] = "no-cache"
+        headers["Expires"] = "0"
+    elif path.suffix.lower() in {".js", ".css", ".woff", ".woff2"}:
+        # Fingerprinted Angular bundles are safe to cache hard.
+        headers["Cache-Control"] = "public, max-age=31536000, immutable"
+    return FileResponse(path, headers=headers)
+
+
+def _spa_index() -> FileResponse:
+    return _file_response(_static_index, no_cache=True)
 
 
 @app.get("/")
+@app.head("/")
 def read_root():
     if _static_index.exists():
-        return FileResponse(_static_index)
+        return _spa_index()
     return {"message": "Welcome to FuelForce API Gateway"}
 
 
 if _static_dir.exists() and _static_index.exists():
 
     @app.get("/{full_path:path}")
+    @app.head("/{full_path:path}")
     def spa_fallback(full_path: str):
-        """Serve Angular UI for all non-file routes (API is only under /api)."""
-        if full_path == "api" or full_path.startswith("api/"):
-            from fastapi import HTTPException
+        """Serve Angular UI for non-API routes.
 
+        Missing fingerprinted assets must 404 (not return index.html). Returning
+        HTML for /main-OLDHASH.js breaks browsers that still have a cached
+        index.html pointing at a previous deploy.
+        """
+        if full_path == "api" or full_path.startswith("api/"):
             raise HTTPException(status_code=404, detail="Not found")
 
-        candidate = _static_dir / full_path
+        candidate = (_static_dir / full_path).resolve()
+        if not _is_under_static(candidate):
+            raise HTTPException(status_code=404, detail="Not found")
+
         if candidate.is_file():
-            return FileResponse(candidate)
-        return FileResponse(_static_index)
+            return _file_response(candidate)
+
+        # Never SPA-fallback asset-looking paths — force a real cache miss.
+        suffix = Path(full_path).suffix.lower()
+        if suffix in _ASSET_SUFFIXES or full_path.startswith("assets/"):
+            raise HTTPException(status_code=404, detail="Asset not found")
+
+        return _spa_index()

@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth';
 import { ApiService } from '../../services/api';
 import { NavBrandComponent } from '../nav-brand/nav-brand.component';
-import { firstValueFrom, timeout } from 'rxjs';
+import { firstValueFrom, timeout, TimeoutError as RxTimeoutError } from 'rxjs';
 
 @Component({
     selector: 'app-payments',
@@ -27,13 +27,12 @@ export class PaymentsComponent implements OnInit {
     async refresh() {
         this.loading = true;
         this.error = '';
+        this.analytics = null;
         try {
-            this.analytics = await firstValueFrom(
-                this.api.get('sales/analytics').pipe(timeout({ first: 20000 }))
-            );
+            this.analytics = await firstValueFrom(this.api.get('sales/analytics').pipe(timeout(20000)));
         } catch (err: any) {
             this.analytics = null;
-            if (err?.name === 'TimeoutError') {
+            if (err instanceof RxTimeoutError || err?.name === 'TimeoutError') {
                 this.error = 'Reports timed out. Tap Refresh.';
             } else {
                 this.error = typeof err?.error?.detail === 'string'

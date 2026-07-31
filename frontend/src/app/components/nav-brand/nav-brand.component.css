@@ -9,56 +9,44 @@
   justify-content: center;
 }
 
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
 .nav-brand-stage {
   position: relative;
-  width: 168px;
+  width: 176px;
   height: 36px;
   overflow: hidden;
+}
+
+/* Always-visible brand so the nav never looks empty between loops */
+.nav-brand-static {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  padding-left: 2px;
+  z-index: 1;
 }
 
 .nav-brand-convoy {
   position: absolute;
   bottom: 2px;
   left: 0;
+  z-index: 2;
   display: flex;
   align-items: flex-end;
-  animation: nav-brand-drive 9s cubic-bezier(0.42, 0, 0.2, 1) infinite;
+  animation: nav-brand-drive 8s cubic-bezier(0.42, 0, 0.2, 1) infinite;
   will-change: transform;
 }
 
 @keyframes nav-brand-drive {
-  /* enter from left */
   0% {
-    transform: translateX(-110%);
+    transform: translateX(-120%);
   }
-  /* arrive and reveal brand */
-  22% {
-    transform: translateX(6px);
+  45% {
+    transform: translateX(130%);
   }
-  /* hold so FuelForce stays readable */
-  62% {
-    transform: translateX(6px);
-  }
-  /* exit right */
-  88% {
-    transform: translateX(120%);
-  }
-  /* wait off-screen, then loop (~9s total) */
-  88.01%,
+  45.01%,
   100% {
-    transform: translateX(-110%);
+    transform: translateX(-120%);
   }
 }
 
@@ -115,7 +103,7 @@
 .nav-brand-name {
   font-family: 'Orbitron', sans-serif;
   font-weight: 700;
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -217,6 +205,6 @@
   }
 
   .nav-brand-convoy {
-    transform: translateX(8px);
+    display: none;
   }
 }

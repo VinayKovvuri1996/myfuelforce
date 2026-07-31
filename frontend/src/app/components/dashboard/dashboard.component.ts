@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth';
 import { ApiService } from '../../services/api';
 import { NavBrandComponent } from '../nav-brand/nav-brand.component';
-import { firstValueFrom, timeout } from 'rxjs';
+import { firstValueFrom, timeout, TimeoutError as RxTimeoutError } from 'rxjs';
 
 @Component({
     selector: 'app-dashboard',
@@ -27,13 +27,12 @@ export class DashboardComponent implements OnInit {
     async refresh() {
         this.loading = true;
         this.error = '';
+        this.ops = null;
         try {
-            this.ops = await firstValueFrom(
-                this.api.get('sales/ops-today').pipe(timeout({ first: 20000 }))
-            );
+            this.ops = await firstValueFrom(this.api.get('sales/ops-today').pipe(timeout(20000)));
         } catch (err: any) {
             this.ops = null;
-            if (err?.name === 'TimeoutError') {
+            if (err instanceof RxTimeoutError || err?.name === 'TimeoutError') {
                 this.error = 'Dashboard timed out. Tap Refresh.';
             } else {
                 this.error = typeof err?.error?.detail === 'string'

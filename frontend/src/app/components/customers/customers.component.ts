@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ApiService } from '../../services/api';
 import { RouterModule } from '@angular/router';
 import { NavBrandComponent } from '../nav-brand/nav-brand.component';
-import { timeout, firstValueFrom } from 'rxjs';
+import { timeout, firstValueFrom, TimeoutError as RxTimeoutError } from 'rxjs';
 
 @Component({
     selector: 'app-customers',
@@ -43,13 +43,11 @@ export class CustomersComponent implements OnInit {
         this.loading = true;
         this.error = '';
         try {
-            const data = await firstValueFrom(
-                this.api.get('customers').pipe(timeout({ first: 15000 }))
-            );
+            const data = await firstValueFrom(this.api.get('customers').pipe(timeout(15000)));
             this.customers = Array.isArray(data) ? data : [];
         } catch (err: any) {
             this.customers = [];
-            if (err?.name === 'TimeoutError') {
+            if (err instanceof RxTimeoutError || err?.name === 'TimeoutError') {
                 this.error = 'Loading timed out. Please refresh.';
             } else if (err?.status === 401) {
                 this.error = 'Session expired. Please login again.';
