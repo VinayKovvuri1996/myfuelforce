@@ -1,12 +1,9 @@
 # Multi-stage: build Angular UI, then run FastAPI serving UI + API on one free Render URL
-FROM node:20-alpine AS frontend-build
+FROM node:22-alpine AS frontend-build
 WORKDIR /frontend
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
 COPY frontend/ ./
-# Same-origin API when UI is served by the backend
-RUN sed -i "s|apiUrl: 'https://api.myfuelforce.online'|apiUrl: ''|" src/environments/environment.prod.ts \
-  || true
 RUN npm run build -- --configuration=production
 
 FROM python:3.11-slim
@@ -20,7 +17,7 @@ RUN pip install --no-cache-dir --upgrade -r /app/backend/requirements.txt
 
 COPY backend /app/backend
 
-# Angular 17+ outputs to dist/frontend/browser
+# Angular application builder outputs to dist/frontend/browser
 COPY --from=frontend-build /frontend/dist/frontend/browser /app/backend/static
 
 ENV PORT=8000
