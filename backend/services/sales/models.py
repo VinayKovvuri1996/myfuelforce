@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, Date
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, Date, Text
 from sqlalchemy.orm import relationship
 from ...database import Base
 from datetime import datetime
@@ -24,7 +24,10 @@ class Sale(Base):
     supervisor_signed = Column(String, nullable=True)
     bill_made_by = Column(String, nullable=True)
     advance_cash = Column(Float, default=0.0)
-    payment_mode = Column(String, default="Credit")  # Paid | Credit
+    payment_mode = Column(String, default="Credit")
+    # Credit | Cash | Cheque | Bank Transfer | RTGS | PhonePe | GPay
+    cheque_number = Column(String, nullable=True)
+    transaction_ref = Column(Text, nullable=True)  # UTR / UPI ref / transfer details
 
     timestamp = Column(DateTime, default=datetime.utcnow)
 

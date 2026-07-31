@@ -1,6 +1,17 @@
 from pydantic import BaseModel, Field
 from datetime import datetime, date
-from typing import Optional
+from typing import Optional, List
+
+
+PAYMENT_MODES: List[str] = [
+    "Credit",
+    "Cash",
+    "Cheque",
+    "Bank Transfer",
+    "RTGS",
+    "PhonePe",
+    "GPay",
+]
 
 
 class SaleBase(BaseModel):
@@ -16,7 +27,9 @@ class SaleBase(BaseModel):
     supervisor_signed: Optional[str] = None
     bill_made_by: Optional[str] = None
     advance_cash: float = 0.0
-    payment_mode: str = Field(default="Credit")  # Paid | Credit
+    payment_mode: str = Field(default="Credit")
+    cheque_number: Optional[str] = None
+    transaction_ref: Optional[str] = None
 
 
 class SaleCreate(SaleBase):

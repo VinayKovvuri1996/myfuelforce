@@ -45,6 +45,8 @@ def ensure_schema():
         "ALTER TABLE sales ADD COLUMN IF NOT EXISTS bill_made_by VARCHAR",
         "ALTER TABLE sales ADD COLUMN IF NOT EXISTS advance_cash FLOAT DEFAULT 0",
         "ALTER TABLE sales ADD COLUMN IF NOT EXISTS payment_mode VARCHAR DEFAULT 'Credit'",
+        "ALTER TABLE sales ADD COLUMN IF NOT EXISTS cheque_number VARCHAR",
+        "ALTER TABLE sales ADD COLUMN IF NOT EXISTS transaction_ref TEXT",
         "CREATE INDEX IF NOT EXISTS ix_sales_bill_number ON sales (bill_number)",
     ]
     with database.engine.begin() as conn:
