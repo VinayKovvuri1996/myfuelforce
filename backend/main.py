@@ -52,23 +52,18 @@ def health():
     return {"status": "ok", "service": "FuelForce"}
 
 
+_static_dir = Path(__file__).resolve().parent / "static"
+_static_index = _static_dir / "index.html"
+
+
 @app.get("/")
 def read_root():
-    static_index = Path(__file__).resolve().parent / "static" / "index.html"
-    if static_index.exists():
-        return FileResponse(static_index)
+    if _static_index.exists():
+        return FileResponse(_static_index)
     return {"message": "Welcome to FuelForce API Gateway"}
 
 
-# Serve Angular production build when present (same-origin deploy on Render)
-_static_dir = Path(__file__).resolve().parent / "static"
-if _static_dir.exists():
-    app.mount("/assets", StaticFiles(directory=_static_dir / "assets"), name="assets")
-
-    @app.get("/{full_path:path}")
-    def spa_fallback(full_path: str):
-        # Keep API routes from being swallowed; FastAPI matches API routers first.
-        candidate = _static_dir / full_path
-        if candidate.is_file():
-            return FileResponse(candidate)
-        return FileResponse(_static_dir / "index.html")
+# Serve Angular production build when present (same-origin deploy on Render).
+# Mount after API routes so /auth, /customers, etc. keep working.
+if _static_dir.exists() and _static_index.exists():
+    app.mount("/", StaticFiles(directory=_static_dir, html=True), name="frontend")
