@@ -10,14 +10,15 @@
                     </div>
                     <div class="hidden sm:ml-10 sm:flex sm:space-x-4">
                         <a routerLink="/dashboard" routerLinkActive="bg-blue-800 text-white"
-                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">Dashboard</a>
+                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
                         <a routerLink="/customers" routerLinkActive="bg-blue-800 text-white"
-                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">Customers</a>
+                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Customers</a>
                         <a routerLink="/sales" routerLinkActive="bg-blue-800 text-white"
-                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">Sales
-                            Entry</a>
+                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Sales</a>
+                        <a routerLink="/stock" routerLinkActive="bg-blue-800 text-white"
+                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Stock</a>
                         <a routerLink="/manpower" routerLinkActive="bg-blue-800 text-white"
-                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">Manpower</a>
+                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Manpower</a>
                     </div>
                 </div>
             </div>
@@ -25,36 +26,28 @@
     </nav>
 
     <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
-        <h2 class="text-3xl font-bold text-gray-900 mb-8 border-l-4 border-ioc-orange pl-4">Manpower Management</h2>
+        <h2 class="text-3xl font-bold text-gray-900 mb-4 border-l-4 border-ioc-orange pl-4">Manpower / Shifts</h2>
+        <div *ngIf="error" class="mb-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700 rounded">{{ error }}</div>
+        <div *ngIf="success" class="mb-4 p-3 bg-green-100 border-l-4 border-green-500 text-green-700 rounded">{{ success }}</div>
 
         <div class="bg-white p-6 rounded-xl shadow-lg mb-8 border-t-4 border-ioc-blue">
-            <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center">
-                <svg class="h-5 w-5 mr-2 text-ioc-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
-                    </path>
-                </svg>
-                Start New Shift
-            </h3>
+            <h3 class="text-lg font-bold text-gray-900 mb-6">Start New Shift</h3>
             <form [formGroup]="shiftForm" (ngSubmit)="startShift()">
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="user_id">Employee</label>
-                        <select formControlName="user_id"
-                            class="shadow-sm border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-blue focus:border-transparent">
-                            <option *ngFor="let user of users" [value]="user.id">{{ user.username }}</option>
-                        </select>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="user_id">Employee name</label>
+                        <input type="text" formControlName="user_id" placeholder="e.g. Ramesh / Staff-01"
+                            class="shadow-sm border border-gray-300 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-ioc-blue">
                     </div>
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="start_time">Start Time</label>
                         <input type="datetime-local" formControlName="start_time"
-                            class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-blue focus:border-transparent">
+                            class="shadow-sm border border-gray-300 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-ioc-blue">
                     </div>
                 </div>
                 <div class="mt-6">
-                    <button
-                        class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow-md transition duration-150"
-                        type="submit">
+                    <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" type="submit"
+                        [disabled]="saving">
                         Start Shift
                     </button>
                 </div>
@@ -65,32 +58,25 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Employee ID</th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start
-                            Time</th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End
-                            Time</th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Action</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Employee</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Start</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">End</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    <tr *ngFor="let shift of shifts" class="hover:bg-gray-50 transition duration-150">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{{ shift.user_id }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ shift.start_time | date:'short'
-                            }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ shift.end_time ?
-                            (shift.end_time | date:'short') : 'Active' }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <tr *ngFor="let shift of shifts">
+                        <td class="px-6 py-4 text-sm font-bold text-gray-900">{{ shift.user_id }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500">{{ shift.start_time | date:'short' }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500">{{ shift.end_time ? (shift.end_time | date:'short') : 'Active' }}</td>
+                        <td class="px-6 py-4 text-sm">
                             <button *ngIf="!shift.end_time" (click)="endShift(shift.id)"
                                 class="text-red-600 hover:text-red-900 font-bold">End Shift</button>
                             <span *ngIf="shift.end_time" class="text-gray-400">Completed</span>
                         </td>
+                    </tr>
+                    <tr *ngIf="!shifts.length">
+                        <td colspan="4" class="px-6 py-6 text-center text-gray-500">No shifts yet.</td>
                     </tr>
                 </tbody>
             </table>

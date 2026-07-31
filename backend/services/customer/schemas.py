@@ -8,7 +8,7 @@ class CustomerBase(BaseModel):
     phone_number: str
     email: str
     contact_person: str
-    contact_person_details: str
+    contact_person_details: Optional[str] = ""
 
 class CustomerCreate(CustomerBase):
     pass

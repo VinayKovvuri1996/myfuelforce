@@ -15,6 +15,8 @@ export class CustomersComponent implements OnInit {
     customers: any[] = [];
     customerForm: FormGroup;
     showForm: boolean = false;
+    error = '';
+    saving = false;
 
     constructor(private api: ApiService, private fb: FormBuilder) {
         this.customerForm = this.fb.group({
@@ -33,22 +35,37 @@ export class CustomersComponent implements OnInit {
     }
 
     loadCustomers() {
-        this.api.get('customers').subscribe(data => {
-            this.customers = data;
+        this.api.get('customers').subscribe({
+            next: (data) => { this.customers = data; },
+            error: (err) => { this.error = err?.error?.detail || 'Failed to load customers'; }
         });
     }
 
     onSubmit() {
-        if (this.customerForm.valid) {
-            this.api.post('customers', this.customerForm.value).subscribe(() => {
+        if (!this.customerForm.valid) {
+            this.error = 'Please fill all required fields (10-digit mobile, valid email).';
+            return;
+        }
+        this.saving = true;
+        this.error = '';
+        this.api.post('customers', this.customerForm.value).subscribe({
+            next: () => {
+                this.saving = false;
                 this.loadCustomers();
                 this.customerForm.reset();
                 this.showForm = false;
-            });
-        }
+            },
+            error: (err) => {
+                this.saving = false;
+                this.error = typeof err?.error?.detail === 'string'
+                    ? err.error.detail
+                    : 'Could not save customer. Please try again.';
+            }
+        });
     }
 
     toggleForm() {
         this.showForm = !this.showForm;
+        this.error = '';
     }
 }

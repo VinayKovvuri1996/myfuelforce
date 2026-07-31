@@ -16,6 +16,8 @@
                         <a routerLink="/sales" routerLinkActive="bg-blue-800 text-white"
                             class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">Sales
                             Entry</a>
+                        <a routerLink="/stock" routerLinkActive="bg-blue-800 text-white"
+                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">Stock</a>
                         <a routerLink="/manpower" routerLinkActive="bg-blue-800 text-white"
                             class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">Manpower</a>
                     </div>
@@ -27,6 +29,32 @@
     <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center mb-8">
             <h2 class="text-3xl font-bold text-gray-900 border-l-4 border-ioc-orange pl-4">Sales Entry</h2>
+        </div>
+
+        <div *ngIf="error" class="mb-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700 rounded">{{ error }}</div>
+        <div *ngIf="success" class="mb-4 p-3 bg-green-100 border-l-4 border-green-500 text-green-700 rounded">{{ success }}</div>
+
+        <div class="bg-white p-4 rounded-xl shadow mb-6 border-t-4 border-green-500 overflow-x-auto" *ngIf="stockRows.length">
+            <h3 class="font-bold mb-2">Today's stock snapshot</h3>
+            <table class="min-w-full text-sm">
+                <thead class="text-xs uppercase text-gray-500 text-left">
+                    <tr>
+                        <th class="pr-4 py-1">Fuel</th>
+                        <th class="pr-4 py-1">Opening</th>
+                        <th class="pr-4 py-1">Sales</th>
+                        <th class="pr-4 py-1">Closing</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let r of stockRows" class="border-t">
+                        <td class="pr-4 py-1 font-medium">{{ r.fuel_type }}</td>
+                        <td class="pr-4 py-1">{{ r.opening_stock | number:'1.2-2' }} {{ r.unit }}</td>
+                        <td class="pr-4 py-1 text-red-600">{{ r.sales_today | number:'1.2-2' }}</td>
+                        <td class="pr-4 py-1 font-bold">{{ r.closing_stock | number:'1.2-2' }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <a routerLink="/stock" class="text-sm text-ioc-blue font-medium">Update opening / receipts →</a>
         </div>
 
         <div class="bg-white p-6 rounded-xl shadow-lg mb-8 border-t-4 border-ioc-blue">
@@ -112,6 +140,7 @@
                         type="submit" [disabled]="!salesForm.valid">
                         Record Sale
                     </button>
+                    <span *ngIf="saving" class="ml-3 text-sm text-gray-500">Saving…</span>
                 </div>
             </form>
         </div>

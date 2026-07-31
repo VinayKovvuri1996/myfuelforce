@@ -5,7 +5,6 @@ from datetime import datetime
 from pydantic import BaseModel
 from ... import database
 from ..identity import routes as identity_routes
-from ..station import models as station_models
 from . import models, schemas
 
 router = APIRouter(
@@ -26,22 +25,9 @@ def start_shift(
     db: Session = Depends(database.get_db),
     current_user=Depends(identity_routes.get_current_user),
 ):
-    station_id = shift.station_id
-    if station_id is not None:
-        station = (
-            db.query(station_models.Station)
-            .filter(
-                station_models.Station.id == station_id,
-                station_models.Station.owner_id == current_user.id,
-            )
-            .first()
-        )
-        if not station:
-            raise HTTPException(status_code=404, detail="Station not found")
-
     db_shift = models.Shift(
         user_id=shift.user_id or current_user.id,
-        station_id=station_id,
+        station_id=shift.station_id,
         start_time=shift.start_time or datetime.utcnow(),
     )
     db.add(db_shift)
@@ -60,18 +46,6 @@ def end_shift(
     shift = db.query(models.Shift).filter(models.Shift.id == shift_id).first()
     if not shift:
         raise HTTPException(status_code=404, detail="Shift not found")
-
-    if shift.station_id is not None:
-        station = (
-            db.query(station_models.Station)
-            .filter(
-                station_models.Station.id == shift.station_id,
-                station_models.Station.owner_id == current_user.id,
-            )
-            .first()
-        )
-        if not station:
-            raise HTTPException(status_code=403, detail="Not authorized")
 
     shift.end_time = datetime.utcnow()
     db.commit()
@@ -93,16 +67,4 @@ def read_shifts(
     db: Session = Depends(database.get_db),
     current_user=Depends(identity_routes.get_current_user),
 ):
-    station = (
-        db.query(station_models.Station)
-        .filter(
-            station_models.Station.id == station_id,
-            station_models.Station.owner_id == current_user.id,
-        )
-        .first()
-    )
-    if not station:
-        raise HTTPException(status_code=404, detail="Station not found")
-
-    shifts = db.query(models.Shift).filter(models.Shift.station_id == station_id).all()
-    return shifts
+    return db.query(models.Shift).filter(models.Shift.station_id == station_id).all()

@@ -1,0 +1,120 @@
+<div class="min-h-screen bg-gray-50">
+    <nav class="bg-ioc-blue shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-3">
+                    <img src="/assets/fuel-force-logo.jpg" alt="FuelForce" class="h-10 w-auto rounded-md border-2 border-white">
+                    <h1 class="text-xl font-bold text-white">FuelForce</h1>
+                    <div class="hidden sm:flex sm:space-x-2 ml-6">
+                        <a routerLink="/dashboard" class="text-gray-300 hover:text-white px-3 py-2 text-sm">Dashboard</a>
+                        <a routerLink="/customers" class="text-gray-300 hover:text-white px-3 py-2 text-sm">Customers</a>
+                        <a routerLink="/sales" class="text-gray-300 hover:text-white px-3 py-2 text-sm">Sales</a>
+                        <a routerLink="/stock" class="bg-blue-800 text-white px-3 py-2 rounded-md text-sm">Stock</a>
+                        <a routerLink="/manpower" class="text-gray-300 hover:text-white px-3 py-2 text-sm">Manpower</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto py-10 px-4">
+        <h2 class="text-3xl font-bold text-gray-900 border-l-4 border-ioc-orange pl-4 mb-2">Stock by Type</h2>
+        <p class="text-sm text-gray-500 mb-6">
+            Set today's opening stock, record tank receipts. Closing = Opening + Receipts − Sales (auto from Sales Entry).
+        </p>
+
+        <div *ngIf="error" class="mb-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700 rounded">{{ error }}</div>
+        <div *ngIf="success" class="mb-4 p-3 bg-green-100 border-l-4 border-green-500 text-green-700 rounded">{{ success }}</div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow border-t-4 border-ioc-blue">
+                <h3 class="font-bold text-lg mb-4">Set / update opening stock</h3>
+                <form [formGroup]="openingForm" (ngSubmit)="saveOpening()" class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold mb-1">Fuel type</label>
+                        <select formControlName="fuel_type" class="w-full border rounded px-3 py-2">
+                            <option *ngFor="let f of fuelTypes" [value]="f">{{ f }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-1">Unit</label>
+                        <select formControlName="unit" class="w-full border rounded px-3 py-2">
+                            <option *ngFor="let u of units" [value]="u">{{ u }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-1">Opening stock</label>
+                        <input type="number" step="0.01" formControlName="opening_quantity" class="w-full border rounded px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-1">Tank capacity</label>
+                        <input type="number" step="0.01" formControlName="capacity" class="w-full border rounded px-3 py-2">
+                    </div>
+                    <div class="col-span-2">
+                        <button type="submit" class="bg-ioc-blue text-white font-bold px-4 py-2 rounded">Save opening</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow border-t-4 border-green-500">
+                <h3 class="font-bold text-lg mb-4">Add receipt (tanker fill)</h3>
+                <form [formGroup]="receiptForm" (ngSubmit)="addReceipt()" class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold mb-1">Fuel type</label>
+                        <select formControlName="fuel_type" class="w-full border rounded px-3 py-2">
+                            <option *ngFor="let f of fuelTypes" [value]="f">{{ f }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-1">Unit</label>
+                        <select formControlName="unit" class="w-full border rounded px-3 py-2">
+                            <option *ngFor="let u of units" [value]="u">{{ u }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-1">Quantity received</label>
+                        <input type="number" step="0.01" formControlName="quantity" class="w-full border rounded px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-1">Note</label>
+                        <input type="text" formControlName="note" class="w-full border rounded px-3 py-2" placeholder="Invoice / tanker no.">
+                    </div>
+                    <div class="col-span-2">
+                        <button type="submit" class="bg-green-600 text-white font-bold px-4 py-2 rounded">Add receipt</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow border-t-4 border-ioc-orange overflow-x-auto">
+            <div class="px-6 py-4 border-b font-bold">Today ({{ summary?.business_date }})</div>
+            <table class="min-w-full text-sm">
+                <thead class="bg-gray-50 text-xs uppercase text-gray-500 text-left">
+                    <tr>
+                        <th class="px-4 py-3">Fuel type</th>
+                        <th class="px-4 py-3">Opening</th>
+                        <th class="px-4 py-3">Receipts</th>
+                        <th class="px-4 py-3">Sales</th>
+                        <th class="px-4 py-3">Closing</th>
+                        <th class="px-4 py-3">Capacity</th>
+                        <th class="px-4 py-3">Unit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let r of summary?.rows" class="border-t">
+                        <td class="px-4 py-3 font-medium">{{ r.fuel_type }}</td>
+                        <td class="px-4 py-3">{{ r.opening_stock | number:'1.2-2' }}</td>
+                        <td class="px-4 py-3 text-green-700">{{ r.receipts_today | number:'1.2-2' }}</td>
+                        <td class="px-4 py-3 text-red-600">{{ r.sales_today | number:'1.2-2' }}</td>
+                        <td class="px-4 py-3 font-bold">{{ r.closing_stock | number:'1.2-2' }}</td>
+                        <td class="px-4 py-3">{{ r.capacity | number:'1.2-2' }}</td>
+                        <td class="px-4 py-3">{{ r.unit }}</td>
+                    </tr>
+                    <tr *ngIf="!summary?.rows?.length">
+                        <td colspan="7" class="px-4 py-6 text-center text-gray-500">No stock configured yet.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

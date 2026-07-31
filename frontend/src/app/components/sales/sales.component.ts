@@ -14,8 +14,8 @@ import { RouterModule } from '@angular/router';
 export class SalesComponent implements OnInit {
     sales: any[] = [];
     customers: any[] = [];
+    stockRows: any[] = [];
     salesForm: FormGroup;
-    // Common Indian retail fuels + misc
     productTypes = ['Petrol', 'Diesel', 'CNG', 'Power', 'XP95', 'Other'];
     units = [
         { value: 'Litre', label: 'Litre (L)' },
@@ -24,6 +24,9 @@ export class SalesComponent implements OnInit {
         { value: 'Cubic metre', label: 'Cubic metre (m³)' }
     ];
     showOtherFields = false;
+    error = '';
+    success = '';
+    saving = false;
 
     constructor(private api: ApiService, private fb: FormBuilder) {
         this.salesForm = this.fb.group({
@@ -40,6 +43,7 @@ export class SalesComponent implements OnInit {
     ngOnInit() {
         this.loadCustomers();
         this.loadSales();
+        this.loadStock();
 
         this.salesForm.get('product_type')?.valueChanges.subscribe(product => {
             this.salesForm.patchValue({ unit: this.defaultUnitFor(product) }, { emitEvent: false });
@@ -70,14 +74,23 @@ export class SalesComponent implements OnInit {
     }
 
     loadCustomers() {
-        this.api.get('customers').subscribe(data => {
-            this.customers = data;
+        this.api.get('customers').subscribe({
+            next: (data) => { this.customers = data; },
+            error: () => { this.error = 'Could not load customers'; }
         });
     }
 
     loadSales() {
-        this.api.get('sales').subscribe(data => {
-            this.sales = data;
+        this.api.get('sales').subscribe({
+            next: (data) => { this.sales = data; },
+            error: () => { this.error = 'Could not load sales'; }
+        });
+    }
+
+    loadStock() {
+        this.api.get('inventory/today').subscribe({
+            next: (data) => { this.stockRows = data?.rows || []; },
+            error: () => { this.stockRows = []; }
         });
     }
 
@@ -92,10 +105,20 @@ export class SalesComponent implements OnInit {
     }
 
     onSubmit() {
-        if (this.salesForm.valid) {
-            const formData = this.salesForm.getRawValue();
-            this.api.post('sales', formData).subscribe(() => {
+        if (!this.salesForm.valid) {
+            this.error = 'Please fill customer, rate and quantity.';
+            return;
+        }
+        this.saving = true;
+        this.error = '';
+        this.success = '';
+        const formData = this.salesForm.getRawValue();
+        this.api.post('sales', formData).subscribe({
+            next: () => {
+                this.saving = false;
+                this.success = 'Sale saved. Stock updated.';
                 this.loadSales();
+                this.loadStock();
                 this.salesForm.reset({
                     product_type: 'Petrol',
                     unit: 'Litre',
@@ -103,7 +126,13 @@ export class SalesComponent implements OnInit {
                     quantity_sold: 0,
                     total_amount: 0
                 });
-            });
-        }
+            },
+            error: (err) => {
+                this.saving = false;
+                this.error = typeof err?.error?.detail === 'string'
+                    ? err.error.detail
+                    : 'Could not save sale.';
+            }
+        });
     }
 }

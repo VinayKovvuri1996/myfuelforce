@@ -13,8 +13,10 @@ import { RouterModule } from '@angular/router';
 })
 export class ManpowerComponent implements OnInit {
     shifts: any[] = [];
-    users: any[] = []; // In a real app, fetch users
     shiftForm: FormGroup;
+    error = '';
+    success = '';
+    saving = false;
 
     constructor(private api: ApiService, private fb: FormBuilder) {
         this.shiftForm = this.fb.group({
@@ -24,43 +26,61 @@ export class ManpowerComponent implements OnInit {
     }
 
     ngOnInit() {
-        // Mock users for now, ideally fetch from API
-        this.users = [
-            { id: 1, username: 'staff1' },
-            { id: 2, username: 'staff2' }
-        ];
         this.loadShifts();
     }
 
     loadShifts() {
-        // Fetch all shifts or for the current logged in user's location
-        // For now, assuming a global list or filtered by backend
-        this.api.get('manpower/shifts').subscribe(data => {
-            this.shifts = data;
-        }, error => {
-            console.error("Error loading shifts", error);
-            // Fallback for demo if backend endpoint not ready
-            this.shifts = [];
+        this.api.get('manpower/shifts').subscribe({
+            next: (data) => { this.shifts = data; this.error = ''; },
+            error: (err) => {
+                this.error = err?.status === 401
+                    ? 'Session expired. Please login again.'
+                    : (err?.error?.detail || 'Could not load shifts');
+                this.shifts = [];
+            }
         });
     }
 
     startShift() {
-        if (this.shiftForm.valid) {
-            const payload = {
-                ...this.shiftForm.value
-            };
-            this.api.post('manpower/shift/start', payload).subscribe(() => {
+        if (!this.shiftForm.valid) {
+            this.error = 'Enter employee name and start time.';
+            return;
+        }
+        this.saving = true;
+        this.error = '';
+        const raw = this.shiftForm.value;
+        const payload = {
+            user_id: String(raw.user_id),
+            start_time: raw.start_time ? new Date(raw.start_time).toISOString() : null
+        };
+        this.api.post('manpower/shift/start', payload).subscribe({
+            next: () => {
+                this.saving = false;
+                this.success = 'Shift started';
                 this.loadShifts();
                 this.shiftForm.reset({
+                    user_id: '',
                     start_time: new Date().toISOString().slice(0, 16)
                 });
-            });
-        }
+            },
+            error: (err) => {
+                this.saving = false;
+                this.error = err?.status === 401
+                    ? 'Session expired. Please login again.'
+                    : (err?.error?.detail || 'Could not start shift');
+            }
+        });
     }
 
     endShift(shiftId: number) {
-        this.api.post(`manpower/shift/end/${shiftId}`, {}).subscribe(() => {
-            this.loadShifts();
+        this.api.post(`manpower/shift/end/${shiftId}`, {}).subscribe({
+            next: () => {
+                this.success = 'Shift ended';
+                this.loadShifts();
+            },
+            error: (err) => {
+                this.error = err?.error?.detail || 'Could not end shift';
+            }
         });
     }
 }

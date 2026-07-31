@@ -5,162 +5,147 @@
                 <div class="flex items-center">
                     <div class="flex-shrink-0 flex items-center gap-3">
                         <img src="/assets/fuel-force-logo.jpg" alt="FuelForce Logo"
-                            class="h-14 w-auto rounded-lg border-2 border-orange-500 shadow-lg">
+                            class="h-12 w-auto rounded-lg border-2 border-orange-500 shadow-lg">
                         <div class="flex flex-col justify-center">
-                            <h1 class="brand-title text-3xl font-black uppercase tracking-widest leading-none relative"
-                                data-text="FUELFORCE">
+                            <h1 class="brand-title text-2xl font-black uppercase tracking-widest leading-none text-white">
                                 FUELFORCE
                             </h1>
-                            <p class="brand-tagline text-[0.65rem] font-bold uppercase tracking-wider text-blue-200 relative mt-1"
-                                data-text="Powering Your Pumps, Fueling Your Future.">
+                            <p class="text-[0.65rem] font-bold uppercase tracking-wider text-blue-200">
                                 Powering Your Pumps, Fueling Your Future.
                             </p>
                         </div>
                     </div>
-                    <div class="hidden sm:ml-10 sm:flex sm:space-x-4">
+                    <div class="hidden sm:ml-8 sm:flex sm:space-x-2">
                         <a routerLink="/dashboard" routerLinkActive="bg-blue-800 text-white"
-                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">
-                            Dashboard
-                        </a>
+                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
                         <a routerLink="/customers" routerLinkActive="bg-blue-800 text-white"
-                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">
-                            Customers
-                        </a>
+                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Customers</a>
                         <a routerLink="/sales" routerLinkActive="bg-blue-800 text-white"
-                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">
-                            Sales Entry
-                        </a>
+                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Sales</a>
+                        <a routerLink="/stock" routerLinkActive="bg-blue-800 text-white"
+                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Stock</a>
                         <a routerLink="/manpower" routerLinkActive="bg-blue-800 text-white"
-                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">
-                            Manpower
-                        </a>
+                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Manpower</a>
                     </div>
                 </div>
-                <div class="flex items-center">
+                <div class="flex items-center gap-2">
+                    <button (click)="refresh()"
+                        class="px-3 py-2 text-sm rounded-md text-white bg-blue-700 hover:bg-blue-600">Refresh</button>
                     <button (click)="logout()"
-                        class="ml-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-150 shadow-sm">
-                        Logout
-                    </button>
+                        class="px-4 py-2 text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700">Logout</button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <div class="py-10">
-        <header>
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
-                <h1 class="text-3xl font-bold leading-tight text-gray-900 border-l-4 border-ioc-orange pl-4">
-                    Dashboard Overview
-                </h1>
+    <div class="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-3xl font-bold text-gray-900 border-l-4 border-ioc-orange pl-4">Live Dashboard</h1>
+            <p class="text-sm text-gray-500">Amounts in ₹ INR</p>
+        </div>
+
+        <div *ngIf="error" class="mb-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700 rounded">{{ error }}</div>
+        <div *ngIf="loading" class="text-gray-500 mb-4">Loading analytics…</div>
+
+        <div *ngIf="analytics" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white rounded-xl shadow border-t-4 border-ioc-orange p-4">
+                <p class="text-xs uppercase text-gray-500 font-semibold">Today</p>
+                <p class="text-2xl font-bold text-gray-900">₹{{ inr(analytics.today.amount) }}</p>
+                <p class="text-xs text-gray-500">{{ analytics.today.count }} bills</p>
             </div>
-        </header>
-        <main>
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="px-4 py-8 sm:px-0">
-                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                        <!-- Card 1: Total Customers -->
-                        <div
-                            class="bg-white overflow-hidden shadow-lg rounded-xl border-t-4 border-ioc-blue hover:shadow-xl transition duration-300">
-                            <div class="px-6 py-8">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
-                                        <svg class="h-8 w-8 text-ioc-blue" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
-                                            </path>
-                                        </svg>
-                                    </div>
-                                    <div class="ml-5 w-0 flex-1">
-                                        <dt class="text-sm font-medium text-gray-500 truncate uppercase tracking-wider">
-                                            Total Customers
-                                        </dt>
-                                        <dd class="flex items-baseline">
-                                            <div class="text-3xl font-bold text-gray-900">
-                                                5
-                                            </div>
-                                        </dd>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bg-gray-50 px-6 py-3">
-                                <div class="text-sm">
-                                    <a routerLink="/customers"
-                                        class="font-medium text-ioc-blue hover:text-blue-800">View
-                                        all customers &rarr;</a>
-                                </div>
-                            </div>
-                        </div>
+            <div class="bg-white rounded-xl shadow border-t-4 border-ioc-blue p-4">
+                <p class="text-xs uppercase text-gray-500 font-semibold">Yesterday</p>
+                <p class="text-2xl font-bold text-gray-900">₹{{ inr(analytics.yesterday.amount) }}</p>
+            </div>
+            <div class="bg-white rounded-xl shadow border-t-4 border-green-500 p-4">
+                <p class="text-xs uppercase text-gray-500 font-semibold">This Week</p>
+                <p class="text-2xl font-bold text-gray-900">₹{{ inr(analytics.this_week.amount) }}</p>
+            </div>
+            <div class="bg-white rounded-xl shadow border-t-4 border-purple-500 p-4">
+                <p class="text-xs uppercase text-gray-500 font-semibold">Last Week</p>
+                <p class="text-2xl font-bold text-gray-900">₹{{ inr(analytics.last_week.amount) }}</p>
+            </div>
+            <div class="bg-white rounded-xl shadow border-t-4 border-amber-500 p-4">
+                <p class="text-xs uppercase text-gray-500 font-semibold">This Month</p>
+                <p class="text-2xl font-bold text-gray-900">₹{{ inr(analytics.this_month.amount) }}</p>
+            </div>
+            <div class="bg-white rounded-xl shadow border-t-4 border-rose-500 p-4">
+                <p class="text-xs uppercase text-gray-500 font-semibold">Last Month</p>
+                <p class="text-2xl font-bold text-gray-900">₹{{ inr(analytics.last_month.amount) }}</p>
+            </div>
+            <div class="bg-white rounded-xl shadow border-t-4 border-cyan-500 p-4">
+                <p class="text-xs uppercase text-gray-500 font-semibold">This Year</p>
+                <p class="text-2xl font-bold text-gray-900">₹{{ inr(analytics.this_year.amount) }}</p>
+            </div>
+            <div class="bg-white rounded-xl shadow border-t-4 border-slate-500 p-4">
+                <p class="text-xs uppercase text-gray-500 font-semibold">All Time</p>
+                <p class="text-2xl font-bold text-gray-900">₹{{ inr(analytics.all_time.amount) }}</p>
+                <p class="text-xs text-gray-500">Earlier years: ₹{{ inr(analytics.earlier.amount) }}</p>
+            </div>
+        </div>
 
-                        <!-- Card 2: Total Sales Today -->
-                        <div
-                            class="bg-white overflow-hidden shadow-lg rounded-xl border-t-4 border-ioc-orange hover:shadow-xl transition duration-300">
-                            <div class="px-6 py-8">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 bg-orange-100 rounded-md p-3">
-                                        <svg class="h-8 w-8 text-ioc-orange" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                                            </path>
-                                        </svg>
-                                    </div>
-                                    <div class="ml-5 w-0 flex-1">
-                                        <dt class="text-sm font-medium text-gray-500 truncate uppercase tracking-wider">
-                                            Total Sales (Today)
-                                        </dt>
-                                        <dd class="flex items-baseline">
-                                            <div class="text-3xl font-bold text-gray-900">
-                                                ₹12,450
-                                            </div>
-                                        </dd>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bg-gray-50 px-6 py-3">
-                                <div class="text-sm">
-                                    <a routerLink="/sales"
-                                        class="font-medium text-ioc-orange hover:text-orange-700">View sales report
-                                        &rarr;</a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Card 3: Active Shifts -->
-                        <div
-                            class="bg-white overflow-hidden shadow-lg rounded-xl border-t-4 border-green-500 hover:shadow-xl transition duration-300">
-                            <div class="px-6 py-8">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
-                                        <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
-                                            </path>
-                                        </svg>
-                                    </div>
-                                    <div class="ml-5 w-0 flex-1">
-                                        <dt class="text-sm font-medium text-gray-500 truncate uppercase tracking-wider">
-                                            Active Shifts
-                                        </dt>
-                                        <dd class="flex items-baseline">
-                                            <div class="text-3xl font-bold text-gray-900">
-                                                5
-                                            </div>
-                                        </dd>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bg-gray-50 px-6 py-3">
-                                <div class="text-sm">
-                                    <a routerLink="/manpower"
-                                        class="font-medium text-green-600 hover:text-green-800">Manage shifts &rarr;</a>
-                                </div>
-                            </div>
-                        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div class="lg:col-span-2 bg-white rounded-xl shadow p-6 border-t-4 border-ioc-blue">
+                <h2 class="text-lg font-bold text-gray-900 mb-4">Sales — last 30 days (₹)</h2>
+                <div class="flex items-end gap-1 h-48" *ngIf="analytics?.daily_last_30?.length">
+                    <div *ngFor="let d of analytics.daily_last_30" class="flex-1 flex flex-col justify-end items-center group relative"
+                        [title]="d.date + ': ₹' + inr(d.amount)">
+                        <div class="w-full bg-ioc-orange/80 hover:bg-ioc-orange rounded-t transition-all"
+                            [style.height.%]="barHeight(d.amount)"></div>
                     </div>
                 </div>
+                <p class="text-xs text-gray-400 mt-2">Hover bars for date & amount</p>
             </div>
-        </main>
+
+            <div class="bg-white rounded-xl shadow p-6 border-t-4 border-ioc-orange">
+                <h2 class="text-lg font-bold text-gray-900 mb-4">Today by product</h2>
+                <div *ngIf="!analytics?.by_type_today?.length" class="text-sm text-gray-500">No sales yet today.</div>
+                <div *ngFor="let row of analytics?.by_type_today" class="mb-3">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="font-medium">{{ row.product_type }}</span>
+                        <span>₹{{ inr(row.amount) }}</span>
+                    </div>
+                    <div class="h-2 bg-gray-100 rounded">
+                        <div class="h-2 bg-ioc-blue rounded"
+                            [style.width.%]="analytics.today.amount ? (row.amount / analytics.today.amount * 100) : 0"></div>
+                    </div>
+                    <p class="text-xs text-gray-500">Qty {{ row.quantity | number:'1.2-2' }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow p-6 border-t-4 border-green-500">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-bold text-gray-900">Today's stock (opening → closing)</h2>
+                <a routerLink="/stock" class="text-sm text-ioc-blue font-medium">Manage stock →</a>
+            </div>
+            <div *ngIf="!stockToday?.rows?.length" class="text-sm text-gray-500">
+                No stock rows yet. Open Stock and set opening stock by fuel type.
+            </div>
+            <div class="overflow-x-auto" *ngIf="stockToday?.rows?.length">
+                <table class="min-w-full text-sm">
+                    <thead class="bg-gray-50 text-left text-xs uppercase text-gray-500">
+                        <tr>
+                            <th class="px-3 py-2">Fuel</th>
+                            <th class="px-3 py-2">Opening</th>
+                            <th class="px-3 py-2">Receipts</th>
+                            <th class="px-3 py-2">Sales</th>
+                            <th class="px-3 py-2">Closing</th>
+                            <th class="px-3 py-2">Unit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let r of stockToday.rows" class="border-t">
+                            <td class="px-3 py-2 font-medium">{{ r.fuel_type }}</td>
+                            <td class="px-3 py-2">{{ r.opening_stock | number:'1.2-2' }}</td>
+                            <td class="px-3 py-2 text-green-700">+{{ r.receipts_today | number:'1.2-2' }}</td>
+                            <td class="px-3 py-2 text-red-600">-{{ r.sales_today | number:'1.2-2' }}</td>
+                            <td class="px-3 py-2 font-bold">{{ r.closing_stock | number:'1.2-2' }}</td>
+                            <td class="px-3 py-2">{{ r.unit }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>

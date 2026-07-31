@@ -16,6 +16,8 @@
                         <a routerLink="/sales" routerLinkActive="bg-blue-800 text-white"
                             class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">Sales
                             Entry</a>
+                        <a routerLink="/stock" routerLinkActive="bg-blue-800 text-white"
+                            class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">Stock</a>
                         <a routerLink="/manpower" routerLinkActive="bg-blue-800 text-white"
                             class="text-gray-300 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">Manpower</a>
                     </div>
@@ -32,6 +34,8 @@
                 {{ showForm ? 'Cancel' : 'Add Customer' }}
             </button>
         </div>
+
+        <div *ngIf="error" class="mb-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700 rounded">{{ error }}</div>
 
         <div *ngIf="showForm" class="bg-white p-6 rounded-xl shadow-lg mb-8 border-t-4 border-ioc-blue">
             <form [formGroup]="customerForm" (ngSubmit)="onSubmit()">

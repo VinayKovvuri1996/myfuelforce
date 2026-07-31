@@ -1,12 +1,12 @@
 import os
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
 
 from . import database
+from .schema_fix import ensure_schema
 from .services.identity import models as identity_models, routes as identity_routes
 from .services.customer import models as customer_models, routes as customer_routes
 from .services.inventory import models as inventory_models, routes as inventory_routes
@@ -21,8 +21,9 @@ customer_models.Base.metadata.create_all(bind=database.engine)
 inventory_models.Base.metadata.create_all(bind=database.engine)
 sales_models.Base.metadata.create_all(bind=database.engine)
 hr_models.Base.metadata.create_all(bind=database.engine)
+ensure_schema()
 
-app = FastAPI(title="FuelForce API Gateway")
+app = FastAPI(title="FuelForce API Gateway", redirect_slashes=False)
 
 cors_origins = os.getenv("CORS_ORIGINS", "*")
 allow_origins = (
@@ -54,6 +55,18 @@ def health():
 
 _static_dir = Path(__file__).resolve().parent / "static"
 _static_index = _static_dir / "index.html"
+_API_ROOTS = {
+    "auth",
+    "customers",
+    "sales",
+    "manpower",
+    "inventory",
+    "stations",
+    "api",
+    "docs",
+    "redoc",
+    "openapi.json",
+}
 
 
 @app.get("/")
@@ -63,7 +76,16 @@ def read_root():
     return {"message": "Welcome to FuelForce API Gateway"}
 
 
-# Serve Angular production build when present (same-origin deploy on Render).
-# Mount after API routes so /auth, /customers, etc. keep working.
 if _static_dir.exists() and _static_index.exists():
-    app.mount("/", StaticFiles(directory=_static_dir, html=True), name="frontend")
+
+    @app.get("/{full_path:path}")
+    def spa_fallback(full_path: str):
+        """Serve Angular assets/SPA. Never steal API paths (fixes POST 405 saves)."""
+        root = full_path.split("/", 1)[0]
+        if root in _API_ROOTS:
+            raise HTTPException(status_code=404, detail="Not found")
+
+        candidate = _static_dir / full_path
+        if candidate.is_file():
+            return FileResponse(candidate)
+        return FileResponse(_static_index)
