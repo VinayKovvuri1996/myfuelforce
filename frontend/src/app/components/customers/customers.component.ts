@@ -14,7 +14,8 @@ import { RouterModule } from '@angular/router';
 export class CustomersComponent implements OnInit {
     customers: any[] = [];
     customerForm: FormGroup;
-    showForm: boolean = false;
+    showForm = false;
+    selectedCustomer: any = null;
     error = '';
     success = '';
     saving = false;
@@ -50,6 +51,15 @@ export class CustomersComponent implements OnInit {
         });
     }
 
+    openDetails(customer: any, event?: Event) {
+        event?.stopPropagation();
+        this.selectedCustomer = customer;
+    }
+
+    closeDetails() {
+        this.selectedCustomer = null;
+    }
+
     onSubmit() {
         if (!this.customerForm.valid) {
             this.error = 'Please fill all required fields (10-digit mobile, valid email).';
@@ -62,7 +72,6 @@ export class CustomersComponent implements OnInit {
             next: (created) => {
                 this.saving = false;
                 this.success = `Customer "${created?.name || 'saved'}" added.`;
-                // Show immediately even before reload finishes
                 if (created?.id) {
                     this.customers = [created, ...this.customers.filter(c => c.id !== created.id)];
                 }

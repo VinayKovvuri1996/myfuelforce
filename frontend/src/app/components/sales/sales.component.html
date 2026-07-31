@@ -91,8 +91,7 @@
                             Name</label>
                         <input
                             class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-blue focus:border-transparent"
-                            id="custom_product_name" type="text" formControlName="custom_product_name"
-                            placeholder="e.g. Lubricant">
+                            id="custom_product_name" type="text" formControlName="custom_product_name">
                     </div>
 
                     <!-- Unit of Measurement -->
@@ -111,8 +110,7 @@
                             (₹)</label>
                         <input
                             class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-blue focus:border-transparent"
-                            id="price_per_unit" type="number" formControlName="price_per_unit" min="0" step="0.01"
-                            placeholder="e.g. 102.50">
+                            id="price_per_unit" type="number" formControlName="price_per_unit" min="0" step="0.01">
                     </div>
 
                     <!-- Quantity -->
@@ -120,8 +118,7 @@
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="quantity_sold">Quantity</label>
                         <input
                             class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-ioc-blue focus:border-transparent"
-                            id="quantity_sold" type="number" formControlName="quantity_sold" min="0" step="0.01"
-                            placeholder="e.g. 25.5">
+                            id="quantity_sold" type="number" formControlName="quantity_sold" min="0" step="0.01">
                     </div>
 
                     <!-- Total Amount (Read Only) -->
@@ -154,35 +151,73 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Date</th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Product</th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Quantity</th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Amount (₹)</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quantity</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount (₹)</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        <tr *ngFor="let sale of sales">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ sale.timestamp |
-                                date:'short' }}</td>
+                        <tr *ngFor="let sale of sales" (click)="openDetails(sale)"
+                            class="hover:bg-orange-50 cursor-pointer">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ sale.timestamp | date:'short' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ customerName(sale.customer_id) }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                 {{ sale.product_type === 'Other' ? sale.custom_product_name : sale.product_type }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ sale.quantity_sold }} {{
-                                sale.unit }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">₹{{
-                                sale.total_amount | number:'1.2-2' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ sale.quantity_sold }} {{ sale.unit }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">₹{{ sale.total_amount | number:'1.2-2' }}</td>
+                        </tr>
+                        <tr *ngIf="!sales.length">
+                            <td colspan="5" class="px-6 py-6 text-center text-gray-500">No sales recorded yet.</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+        </div>
+    </div>
+
+    <div *ngIf="selectedSale" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+        (click)="closeDetails()">
+        <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full p-6 border-t-4 border-ioc-blue"
+            (click)="$event.stopPropagation()">
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-2xl font-bold text-gray-900">Sale details</h3>
+                <button type="button" (click)="closeDetails()" class="text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <dl class="space-y-3 text-sm">
+                <div class="flex justify-between gap-4 border-b pb-2">
+                    <dt class="text-gray-500">Date / time</dt>
+                    <dd class="font-medium">{{ selectedSale.timestamp | date:'medium' }}</dd>
+                </div>
+                <div class="flex justify-between gap-4 border-b pb-2">
+                    <dt class="text-gray-500">Customer</dt>
+                    <dd class="font-medium">{{ customerName(selectedSale.customer_id) }}</dd>
+                </div>
+                <div class="flex justify-between gap-4 border-b pb-2">
+                    <dt class="text-gray-500">Product</dt>
+                    <dd class="font-medium">{{ selectedSale.product_type === 'Other' ? selectedSale.custom_product_name : selectedSale.product_type }}</dd>
+                </div>
+                <div class="flex justify-between gap-4 border-b pb-2">
+                    <dt class="text-gray-500">Unit</dt>
+                    <dd class="font-medium">{{ selectedSale.unit || '—' }}</dd>
+                </div>
+                <div class="flex justify-between gap-4 border-b pb-2">
+                    <dt class="text-gray-500">Rate per unit</dt>
+                    <dd class="font-medium">₹{{ selectedSale.price_per_unit | number:'1.2-2' }}</dd>
+                </div>
+                <div class="flex justify-between gap-4 border-b pb-2">
+                    <dt class="text-gray-500">Quantity</dt>
+                    <dd class="font-medium">{{ selectedSale.quantity_sold | number:'1.2-2' }}</dd>
+                </div>
+                <div class="flex justify-between gap-4">
+                    <dt class="text-gray-500">Total amount</dt>
+                    <dd class="font-bold text-green-600">₹{{ selectedSale.total_amount | number:'1.2-2' }}</dd>
+                </div>
+            </dl>
+            <button type="button" (click)="closeDetails()"
+                class="mt-6 w-full bg-gray-100 text-gray-700 font-bold py-2 rounded">Close</button>
         </div>
     </div>
 </div>

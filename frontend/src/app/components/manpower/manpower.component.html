@@ -35,21 +35,19 @@
             <form [formGroup]="shiftForm" (ngSubmit)="startShift()">
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="user_id">Employee name</label>
-                        <input type="text" formControlName="user_id" placeholder="e.g. Ramesh / Staff-01"
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Employee name</label>
+                        <input type="text" formControlName="user_id"
                             class="shadow-sm border border-gray-300 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-ioc-blue">
                     </div>
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="start_time">Start Time</label>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Start Time</label>
                         <input type="datetime-local" formControlName="start_time"
                             class="shadow-sm border border-gray-300 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-ioc-blue">
                     </div>
                 </div>
                 <div class="mt-6">
                     <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" type="submit"
-                        [disabled]="saving">
-                        Start Shift
-                    </button>
+                        [disabled]="saving">Start Shift</button>
                 </div>
             </form>
         </div>
@@ -65,12 +63,13 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    <tr *ngFor="let shift of shifts">
-                        <td class="px-6 py-4 text-sm font-bold text-gray-900">{{ shift.user_id }}</td>
+                    <tr *ngFor="let shift of shifts" (click)="openDetails(shift)"
+                        class="hover:bg-orange-50 cursor-pointer">
+                        <td class="px-6 py-4 text-sm font-bold text-gray-900">{{ shift.user_id || '—' }}</td>
                         <td class="px-6 py-4 text-sm text-gray-500">{{ shift.start_time | date:'short' }}</td>
                         <td class="px-6 py-4 text-sm text-gray-500">{{ shift.end_time ? (shift.end_time | date:'short') : 'Active' }}</td>
                         <td class="px-6 py-4 text-sm">
-                            <button *ngIf="!shift.end_time" (click)="endShift(shift.id)"
+                            <button *ngIf="!shift.end_time" type="button" (click)="endShift(shift.id, $event)"
                                 class="text-red-600 hover:text-red-900 font-bold">End Shift</button>
                             <span *ngIf="shift.end_time" class="text-gray-400">Completed</span>
                         </td>
@@ -80,6 +79,41 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    <div *ngIf="selectedShift" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+        (click)="closeDetails()">
+        <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full p-6 border-t-4 border-green-500"
+            (click)="$event.stopPropagation()">
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-2xl font-bold text-gray-900">Shift details</h3>
+                <button type="button" (click)="closeDetails()" class="text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <dl class="space-y-3 text-sm">
+                <div class="flex justify-between gap-4 border-b pb-2">
+                    <dt class="text-gray-500">Employee</dt>
+                    <dd class="font-medium">{{ selectedShift.user_id || '—' }}</dd>
+                </div>
+                <div class="flex justify-between gap-4 border-b pb-2">
+                    <dt class="text-gray-500">Start</dt>
+                    <dd class="font-medium">{{ selectedShift.start_time | date:'medium' }}</dd>
+                </div>
+                <div class="flex justify-between gap-4 border-b pb-2">
+                    <dt class="text-gray-500">End</dt>
+                    <dd class="font-medium">{{ selectedShift.end_time ? (selectedShift.end_time | date:'medium') : 'Still active' }}</dd>
+                </div>
+                <div class="flex justify-between gap-4">
+                    <dt class="text-gray-500">Duration</dt>
+                    <dd class="font-medium">{{ durationLabel(selectedShift) }}</dd>
+                </div>
+            </dl>
+            <div class="mt-6 flex gap-3">
+                <button *ngIf="!selectedShift.end_time" type="button" (click)="endShift(selectedShift.id)"
+                    class="flex-1 bg-red-600 text-white font-bold py-2 rounded">End Shift</button>
+                <button type="button" (click)="closeDetails()"
+                    class="flex-1 bg-gray-100 text-gray-700 font-bold py-2 rounded">Close</button>
+            </div>
         </div>
     </div>
 </div>

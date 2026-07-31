@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApiService } from '../../services/api';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: 'app-sales',
@@ -16,6 +16,7 @@ export class SalesComponent implements OnInit {
     customers: any[] = [];
     stockRows: any[] = [];
     salesForm: FormGroup;
+    selectedSale: any = null;
     productTypes = ['Petrol', 'Diesel', 'CNG', 'Power', 'XP95', 'Other'];
     units = [
         { value: 'Litre', label: 'Litre (L)' },
@@ -28,15 +29,19 @@ export class SalesComponent implements OnInit {
     success = '';
     saving = false;
 
-    constructor(private api: ApiService, private fb: FormBuilder) {
+    constructor(
+        private api: ApiService,
+        private fb: FormBuilder,
+        private route: ActivatedRoute
+    ) {
         this.salesForm = this.fb.group({
             customer_id: ['', Validators.required],
             product_type: ['Petrol', Validators.required],
             custom_product_name: [''],
             unit: ['Litre', Validators.required],
-            price_per_unit: [0, [Validators.required, Validators.min(0.01)]],
-            quantity_sold: [0, [Validators.required, Validators.min(0.01)]],
-            total_amount: [{ value: 0, disabled: true }]
+            price_per_unit: [null, [Validators.required, Validators.min(0.01)]],
+            quantity_sold: [null, [Validators.required, Validators.min(0.01)]],
+            total_amount: [{ value: null, disabled: true }]
         });
     }
 
@@ -45,6 +50,12 @@ export class SalesComponent implements OnInit {
         this.loadSales();
         this.loadStock();
 
+        this.route.queryParams.subscribe(params => {
+            if (params['customerId']) {
+                this.salesForm.patchValue({ customer_id: params['customerId'] });
+            }
+        });
+
         this.salesForm.get('product_type')?.valueChanges.subscribe(product => {
             this.salesForm.patchValue({ unit: this.defaultUnitFor(product) }, { emitEvent: false });
         });
@@ -52,7 +63,6 @@ export class SalesComponent implements OnInit {
         this.salesForm.valueChanges.subscribe(values => {
             this.calculateTotal(values);
             this.showOtherFields = values.product_type === 'Other';
-
             if (values.product_type !== 'Other') {
                 this.salesForm.get('custom_product_name')?.setValidators(null);
             } else {
@@ -62,14 +72,16 @@ export class SalesComponent implements OnInit {
         });
     }
 
+    customerName(id: number): string {
+        const c = this.customers.find(x => x.id === id || String(x.id) === String(id));
+        return c?.name || '—';
+    }
+
     defaultUnitFor(product: string): string {
         switch (product) {
-            case 'CNG':
-                return 'Kilogram';
-            case 'Other':
-                return 'Piece';
-            default:
-                return 'Litre';
+            case 'CNG': return 'Kilogram';
+            case 'Other': return 'Piece';
+            default: return 'Litre';
         }
     }
 
@@ -82,7 +94,7 @@ export class SalesComponent implements OnInit {
 
     loadSales() {
         this.api.get('sales').subscribe({
-            next: (data) => { this.sales = data; },
+            next: (data) => { this.sales = Array.isArray(data) ? data : []; },
             error: () => { this.error = 'Could not load sales'; }
         });
     }
@@ -94,11 +106,22 @@ export class SalesComponent implements OnInit {
         });
     }
 
-    calculateTotal(values: any) {
-        const price = parseFloat(values.price_per_unit) || 0;
-        const quantity = parseFloat(values.quantity_sold) || 0;
-        const total = price * quantity;
+    openDetails(sale: any) {
+        this.selectedSale = sale;
+    }
 
+    closeDetails() {
+        this.selectedSale = null;
+    }
+
+    calculateTotal(values: any) {
+        const price = parseFloat(values.price_per_unit);
+        const quantity = parseFloat(values.quantity_sold);
+        if (isNaN(price) || isNaN(quantity)) {
+            this.salesForm.patchValue({ total_amount: null }, { emitEvent: false });
+            return;
+        }
+        const total = price * quantity;
         if (this.salesForm.get('total_amount')?.value !== total) {
             this.salesForm.patchValue({ total_amount: total }, { emitEvent: false });
         }
@@ -116,15 +139,17 @@ export class SalesComponent implements OnInit {
         this.api.post('sales', formData).subscribe({
             next: () => {
                 this.saving = false;
-                this.success = 'Sale saved. Stock updated.';
+                this.success = 'Sale saved.';
                 this.loadSales();
                 this.loadStock();
                 this.salesForm.reset({
                     product_type: 'Petrol',
                     unit: 'Litre',
-                    price_per_unit: 0,
-                    quantity_sold: 0,
-                    total_amount: 0
+                    price_per_unit: null,
+                    quantity_sold: null,
+                    total_amount: null,
+                    custom_product_name: '',
+                    customer_id: ''
                 });
             },
             error: (err) => {
