@@ -215,7 +215,7 @@ def ops_today(db: Session = Depends(database.get_db)):
     return {
         "business_date": today.isoformat(),
         "sales_today": sales_today,
-        "stock": stock_summary.model_dump(),
+        "stock": stock_summary.model_dump(mode="json"),
         "hourly": hourly,
         "staff_today": staff,
         "prices": prices,

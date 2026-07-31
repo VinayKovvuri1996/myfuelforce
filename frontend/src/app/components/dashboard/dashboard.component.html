@@ -55,7 +55,7 @@
             <div class="panel-glass-static border-t-4 border-ioc-orange p-5">
                 <p class="text-xs uppercase text-gray-500 font-semibold">Total sales today</p>
                 <p class="text-3xl font-bold text-gray-900">₹{{ inr(ops.sales_today?.amount) }}</p>
-                <p class="text-sm text-gray-600 mt-1">{{ ops.sales_today?.count || 0 }} bills · Qty {{ ops.sales_today?.quantity | number:'1.2-2' }}</p>
+                <p class="text-sm text-gray-600 mt-1">{{ ops.sales_today?.count || 0 }} bills · Qty {{ qty(ops.sales_today?.quantity) }}</p>
             </div>
             <div class="panel-glass-static border-t-4 border-green-500 p-5">
                 <p class="text-xs uppercase text-gray-500 font-semibold">Staff available today</p>

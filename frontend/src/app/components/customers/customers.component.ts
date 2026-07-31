@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApiService } from '../../services/api';
 import { RouterModule } from '@angular/router';
-import { finalize, timeout } from 'rxjs/operators';
+import { timeout, firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-customers',
@@ -38,29 +38,28 @@ export class CustomersComponent implements OnInit {
         this.loadCustomers();
     }
 
-    loadCustomers() {
+    async loadCustomers() {
         this.loading = true;
         this.error = '';
-        this.api.get('customers').pipe(
-            timeout(20000),
-            finalize(() => { this.loading = false; })
-        ).subscribe({
-            next: (data) => {
-                this.customers = Array.isArray(data) ? data : [];
-            },
-            error: (err) => {
-                this.customers = [];
-                if (err?.name === 'TimeoutError') {
-                    this.error = 'Loading timed out. Please refresh and try again.';
-                } else if (err?.status === 401) {
-                    this.error = 'Session expired. Please login again.';
-                } else {
-                    this.error = typeof err?.error?.detail === 'string'
-                        ? err.error.detail
-                        : 'Could not load customers.';
-                }
+        try {
+            const data = await firstValueFrom(
+                this.api.get('customers').pipe(timeout({ first: 15000 }))
+            );
+            this.customers = Array.isArray(data) ? data : [];
+        } catch (err: any) {
+            this.customers = [];
+            if (err?.name === 'TimeoutError') {
+                this.error = 'Loading timed out. Please refresh.';
+            } else if (err?.status === 401) {
+                this.error = 'Session expired. Please login again.';
+            } else {
+                this.error = typeof err?.error?.detail === 'string'
+                    ? err.error.detail
+                    : 'Could not load customers.';
             }
-        });
+        } finally {
+            this.loading = false;
+        }
     }
 
     openDetails(customer: any, event?: Event) {

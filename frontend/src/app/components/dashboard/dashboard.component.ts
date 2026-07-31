@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth';
 import { ApiService } from '../../services/api';
+import { firstValueFrom, timeout } from 'rxjs';
 
 @Component({
     selector: 'app-dashboard',
@@ -22,22 +23,33 @@ export class DashboardComponent implements OnInit {
         this.refresh();
     }
 
-    refresh() {
+    async refresh() {
         this.loading = true;
         this.error = '';
-        this.api.get('sales/ops-today').subscribe({
-            next: (data) => {
-                this.ops = data;
-                this.loading = false;
-            },
-            error: (err) => {
-                this.error = err?.error?.detail || 'Could not load dashboard';
-                this.loading = false;
+        try {
+            this.ops = await firstValueFrom(
+                this.api.get('sales/ops-today').pipe(timeout({ first: 20000 }))
+            );
+        } catch (err: any) {
+            this.ops = null;
+            if (err?.name === 'TimeoutError') {
+                this.error = 'Dashboard timed out. Tap Refresh.';
+            } else {
+                this.error = typeof err?.error?.detail === 'string'
+                    ? err.error.detail
+                    : 'Could not load dashboard.';
             }
-        });
+        } finally {
+            this.loading = false;
+        }
     }
 
     inr(amount: number | undefined | null): string {
+        const n = Number(amount || 0);
+        return n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    qty(amount: number | undefined | null): string {
         const n = Number(amount || 0);
         return n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
