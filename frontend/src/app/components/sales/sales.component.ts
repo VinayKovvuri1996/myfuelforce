@@ -15,7 +15,14 @@ export class SalesComponent implements OnInit {
     sales: any[] = [];
     customers: any[] = [];
     salesForm: FormGroup;
-    productTypes = ['Petrol', 'Diesel', 'CNG', 'Other'];
+    // Common Indian retail fuels + misc
+    productTypes = ['Petrol', 'Diesel', 'CNG', 'Power', 'XP95', 'Other'];
+    units = [
+        { value: 'Litre', label: 'Litre (L)' },
+        { value: 'Kilogram', label: 'Kilogram (kg)' },
+        { value: 'Piece', label: 'Piece (pcs)' },
+        { value: 'Cubic metre', label: 'Cubic metre (m³)' }
+    ];
     showOtherFields = false;
 
     constructor(private api: ApiService, private fb: FormBuilder) {
@@ -23,7 +30,7 @@ export class SalesComponent implements OnInit {
             customer_id: ['', Validators.required],
             product_type: ['Petrol', Validators.required],
             custom_product_name: [''],
-            unit: ['Ltr', Validators.required],
+            unit: ['Litre', Validators.required],
             price_per_unit: [0, [Validators.required, Validators.min(0.01)]],
             quantity_sold: [0, [Validators.required, Validators.min(0.01)]],
             total_amount: [{ value: 0, disabled: true }]
@@ -34,7 +41,10 @@ export class SalesComponent implements OnInit {
         this.loadCustomers();
         this.loadSales();
 
-        // Watch for changes to calculate total
+        this.salesForm.get('product_type')?.valueChanges.subscribe(product => {
+            this.salesForm.patchValue({ unit: this.defaultUnitFor(product) }, { emitEvent: false });
+        });
+
         this.salesForm.valueChanges.subscribe(values => {
             this.calculateTotal(values);
             this.showOtherFields = values.product_type === 'Other';
@@ -46,6 +56,17 @@ export class SalesComponent implements OnInit {
             }
             this.salesForm.get('custom_product_name')?.updateValueAndValidity({ emitEvent: false });
         });
+    }
+
+    defaultUnitFor(product: string): string {
+        switch (product) {
+            case 'CNG':
+                return 'Kilogram';
+            case 'Other':
+                return 'Piece';
+            default:
+                return 'Litre';
+        }
     }
 
     loadCustomers() {
@@ -72,12 +93,12 @@ export class SalesComponent implements OnInit {
 
     onSubmit() {
         if (this.salesForm.valid) {
-            const formData = this.salesForm.getRawValue(); // Get raw value to include disabled total_amount
+            const formData = this.salesForm.getRawValue();
             this.api.post('sales', formData).subscribe(() => {
                 this.loadSales();
                 this.salesForm.reset({
                     product_type: 'Petrol',
-                    unit: 'Ltr',
+                    unit: 'Litre',
                     price_per_unit: 0,
                     quantity_sold: 0,
                     total_amount: 0
