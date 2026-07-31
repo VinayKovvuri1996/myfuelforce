@@ -61,6 +61,8 @@ def upsert_stock(stock: schemas.StockCreate, db: Session = Depends(database.get_
             existing.quantity = stock.quantity
         existing.capacity = stock.capacity
         existing.unit = stock.unit
+        if stock.price_per_unit is not None:
+            existing.price_per_unit = stock.price_per_unit
         existing.last_updated = datetime.utcnow()
         db.commit()
         db.refresh(existing)
@@ -74,6 +76,7 @@ def upsert_stock(stock: schemas.StockCreate, db: Session = Depends(database.get_
         capacity=stock.capacity,
         opening_quantity=opening,
         opening_date=today,
+        price_per_unit=stock.price_per_unit or 0.0,
         station_id=stock.station_id,
         last_updated=datetime.utcnow(),
     )
@@ -157,6 +160,7 @@ def stock_today(db: Session = Depends(database.get_db)):
                 sales_today=float(sales_qty),
                 closing_stock=closing,
                 capacity=s.capacity or 0.0,
+                price_per_unit=float(s.price_per_unit or 0.0),
             )
         )
 

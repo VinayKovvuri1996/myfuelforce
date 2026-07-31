@@ -17,6 +17,7 @@ class Stock(Base):
     capacity = Column(Float, default=0.0)
     opening_quantity = Column(Float, default=0.0)  # opening for current business day
     opening_date = Column(Date, nullable=True)
+    price_per_unit = Column(Float, default=0.0)  # today's selling rate for this fuel
     last_updated = Column(DateTime, default=datetime.utcnow)
 
 

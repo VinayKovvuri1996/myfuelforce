@@ -5,6 +5,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { CustomersComponent } from './components/customers/customers.component';
 import { SalesComponent } from './components/sales/sales.component';
 import { ManpowerComponent } from './components/manpower/manpower.component';
+import { PaymentsComponent } from './components/payments/payments.component';
 import { StockComponent } from './components/stock/stock.component';
 import { inject } from '@angular/core';
 import { AuthService } from './services/auth';
@@ -24,6 +25,7 @@ export const routes: Routes = [
     { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
     { path: 'customers', component: CustomersComponent, canActivate: [authGuard] },
     { path: 'sales', component: SalesComponent, canActivate: [authGuard] },
+    { path: 'payments', component: PaymentsComponent, canActivate: [authGuard] },
     { path: 'stock', component: StockComponent, canActivate: [authGuard] },
     { path: 'manpower', component: ManpowerComponent, canActivate: [authGuard] },
     { path: '', redirectTo: '/dashboard', pathMatch: 'full' }

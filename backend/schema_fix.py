@@ -48,6 +48,7 @@ def ensure_schema():
         "ALTER TABLE sales ADD COLUMN IF NOT EXISTS cheque_number VARCHAR",
         "ALTER TABLE sales ADD COLUMN IF NOT EXISTS transaction_ref TEXT",
         "CREATE INDEX IF NOT EXISTS ix_sales_bill_number ON sales (bill_number)",
+        "ALTER TABLE stocks ADD COLUMN IF NOT EXISTS price_per_unit FLOAT DEFAULT 0",
     ]
     with database.engine.begin() as conn:
         for stmt in statements:

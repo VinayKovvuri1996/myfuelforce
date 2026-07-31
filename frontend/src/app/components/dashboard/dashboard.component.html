@@ -22,6 +22,8 @@
                             class="text-gray-300 hover:bg-white/10 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Customers</a>
                         <a routerLink="/sales" routerLinkActive="bg-white/15 text-white"
                             class="text-gray-300 hover:bg-white/10 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Sales</a>
+                        <a routerLink="/payments" routerLinkActive="bg-white/15 text-white"
+                            class="text-gray-300 hover:bg-white/10 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Payments</a>
                         <a routerLink="/stock" routerLinkActive="bg-white/15 text-white"
                             class="text-gray-300 hover:bg-white/10 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Stock</a>
                         <a routerLink="/manpower" routerLinkActive="bg-white/15 text-white"
@@ -40,111 +42,98 @@
 
     <div class="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between mb-6">
-            <h1 class="page-title text-3xl">Live Dashboard</h1>
-            <p class="page-subtitle">Amounts in ₹ INR</p>
+            <h1 class="page-title text-3xl">Today's operations</h1>
+            <p class="page-subtitle">{{ ops?.business_date || '' }} · Sales ₹ & payment graphs →
+                <a routerLink="/payments" class="underline text-white">Payments</a>
+            </p>
         </div>
 
         <div *ngIf="error" class="mb-4 p-3 bg-red-100/90 border-l-4 border-red-500 text-red-700 rounded">{{ error }}</div>
-        <div *ngIf="loading" class="page-subtitle mb-4">Loading analytics…</div>
+        <div *ngIf="loading" class="panel-glass-static p-4 mb-4 text-sm text-gray-600">Loading dashboard…</div>
 
-        <div *ngIf="analytics" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div class="panel-glass-static border-t-4 border-ioc-orange p-4">
-                <p class="text-xs uppercase text-gray-500 font-semibold">Today</p>
-                <p class="text-2xl font-bold text-gray-900">₹{{ inr(analytics.today.amount) }}</p>
-                <p class="text-xs text-gray-500">{{ analytics.today.count }} bills</p>
+        <div *ngIf="ops" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="panel-glass-static border-t-4 border-ioc-orange p-5">
+                <p class="text-xs uppercase text-gray-500 font-semibold">Total sales today</p>
+                <p class="text-3xl font-bold text-gray-900">₹{{ inr(ops.sales_today?.amount) }}</p>
+                <p class="text-sm text-gray-600 mt-1">{{ ops.sales_today?.count || 0 }} bills · Qty {{ ops.sales_today?.quantity | number:'1.2-2' }}</p>
             </div>
-            <div class="panel-glass-static border-t-4 border-ioc-blue p-4">
-                <p class="text-xs uppercase text-gray-500 font-semibold">Yesterday</p>
-                <p class="text-2xl font-bold text-gray-900">₹{{ inr(analytics.yesterday.amount) }}</p>
+            <div class="panel-glass-static border-t-4 border-green-500 p-5">
+                <p class="text-xs uppercase text-gray-500 font-semibold">Staff available today</p>
+                <p class="text-3xl font-bold text-gray-900">{{ ops.staff_today?.length || 0 }}</p>
+                <p class="text-sm text-gray-600 mt-1">On shift / started today</p>
             </div>
-            <div class="panel-glass-static border-t-4 border-green-500 p-4">
-                <p class="text-xs uppercase text-gray-500 font-semibold">This Week</p>
-                <p class="text-2xl font-bold text-gray-900">₹{{ inr(analytics.this_week.amount) }}</p>
-            </div>
-            <div class="panel-glass-static border-t-4 border-teal-500 p-4">
-                <p class="text-xs uppercase text-gray-500 font-semibold">Last Week</p>
-                <p class="text-2xl font-bold text-gray-900">₹{{ inr(analytics.last_week.amount) }}</p>
-            </div>
-            <div class="panel-glass-static border-t-4 border-amber-500 p-4">
-                <p class="text-xs uppercase text-gray-500 font-semibold">This Month</p>
-                <p class="text-2xl font-bold text-gray-900">₹{{ inr(analytics.this_month.amount) }}</p>
-            </div>
-            <div class="panel-glass-static border-t-4 border-rose-500 p-4">
-                <p class="text-xs uppercase text-gray-500 font-semibold">Last Month</p>
-                <p class="text-2xl font-bold text-gray-900">₹{{ inr(analytics.last_month.amount) }}</p>
-            </div>
-            <div class="panel-glass-static border-t-4 border-cyan-500 p-4">
-                <p class="text-xs uppercase text-gray-500 font-semibold">This Year</p>
-                <p class="text-2xl font-bold text-gray-900">₹{{ inr(analytics.this_year.amount) }}</p>
-            </div>
-            <div class="panel-glass-static border-t-4 border-slate-500 p-4">
-                <p class="text-xs uppercase text-gray-500 font-semibold">All Time</p>
-                <p class="text-2xl font-bold text-gray-900">₹{{ inr(analytics.all_time.amount) }}</p>
-                <p class="text-xs text-gray-500">Earlier years: ₹{{ inr(analytics.earlier.amount) }}</p>
+            <div class="panel-glass-static border-t-4 border-ioc-blue p-5">
+                <p class="text-xs uppercase text-gray-500 font-semibold">Fuel types tracked</p>
+                <p class="text-3xl font-bold text-gray-900">{{ ops.stock?.rows?.length || 0 }}</p>
+                <p class="text-sm text-gray-600 mt-1">Opening / current stock below</p>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            <div class="lg:col-span-2 panel-glass-static p-6 border-t-4 border-ioc-blue">
-                <h2 class="text-lg font-bold text-gray-900 mb-4">Sales — last 30 days (₹)</h2>
-                <div class="flex items-end gap-1 h-48" *ngIf="analytics?.daily_last_30?.length">
-                    <div *ngFor="let d of analytics.daily_last_30" class="flex-1 flex flex-col justify-end items-center group relative"
-                        [title]="d.date + ': ₹' + inr(d.amount)">
-                        <div class="w-full bg-ioc-orange/80 hover:bg-ioc-orange rounded-t transition-all"
-                            [style.height.%]="barHeight(d.amount)"></div>
-                    </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8" *ngIf="ops">
+            <div class="panel-glass-static p-6 border-t-4 border-green-500">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold text-gray-900">Today's stock</h2>
+                    <a routerLink="/stock" class="text-sm text-ioc-blue font-medium">Manage →</a>
                 </div>
-                <p class="text-xs text-gray-400 mt-2">Hover bars for date & amount</p>
+                <div *ngIf="!ops.stock?.rows?.length" class="text-sm text-gray-500">No stock set yet.</div>
+                <div class="overflow-x-auto" *ngIf="ops.stock?.rows?.length">
+                    <table class="min-w-full text-sm">
+                        <thead class="bg-white/40 text-left text-xs uppercase text-gray-500">
+                            <tr>
+                                <th class="px-3 py-2">Fuel</th>
+                                <th class="px-3 py-2">Opening</th>
+                                <th class="px-3 py-2">Current</th>
+                                <th class="px-3 py-2">Sales qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let r of ops.stock.rows" class="border-t">
+                                <td class="px-3 py-2 font-medium">{{ r.fuel_type }}</td>
+                                <td class="px-3 py-2">{{ r.opening_stock | number:'1.2-2' }}</td>
+                                <td class="px-3 py-2 font-bold">{{ r.closing_stock | number:'1.2-2' }}</td>
+                                <td class="px-3 py-2 text-red-600">{{ r.sales_today | number:'1.2-2' }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <div class="panel-glass-static p-6 border-t-4 border-ioc-orange">
-                <h2 class="text-lg font-bold text-gray-900 mb-4">Today by product</h2>
-                <div *ngIf="!analytics?.by_type_today?.length" class="text-sm text-gray-500">No sales yet today.</div>
-                <div *ngFor="let row of analytics?.by_type_today" class="mb-3">
-                    <div class="flex justify-between text-sm mb-1">
-                        <span class="font-medium">{{ row.product_type }}</span>
-                        <span>₹{{ inr(row.amount) }}</span>
-                    </div>
-                    <div class="h-2 bg-gray-100 rounded">
-                        <div class="h-2 bg-ioc-blue rounded"
-                            [style.width.%]="analytics.today.amount ? (row.amount / analytics.today.amount * 100) : 0"></div>
-                    </div>
-                    <p class="text-xs text-gray-500">Qty {{ row.quantity | number:'1.2-2' }}</p>
+                <h2 class="text-lg font-bold text-gray-900 mb-4">Today's prices</h2>
+                <div *ngIf="!ops.prices?.length" class="text-sm text-gray-500">Set stock / record a sale to capture rates.</div>
+                <div *ngFor="let p of ops.prices" class="flex justify-between border-b py-2 text-sm">
+                    <span class="font-medium">{{ p.fuel_type }} <span class="text-gray-500">/ {{ p.unit }}</span></span>
+                    <span class="font-bold text-ioc-blue">₹{{ inr(p.price_per_unit) }}</span>
                 </div>
             </div>
         </div>
 
-        <div class="panel-glass-static p-6 border-t-4 border-green-500">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-bold text-gray-900">Today's stock (opening → closing)</h2>
-                <a routerLink="/stock" class="text-sm text-ioc-blue font-medium">Manage stock →</a>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8" *ngIf="ops">
+            <div class="lg:col-span-2 panel-glass-static p-6 border-t-4 border-ioc-blue">
+                <h2 class="text-lg font-bold text-gray-900 mb-4">Hourly busy report (bills today)</h2>
+                <div class="flex items-end gap-0.5 h-40">
+                    <div *ngFor="let h of ops.hourly" class="flex-1 flex flex-col justify-end items-center"
+                        [title]="hourLabel(h.hour) + ': ' + h.bills + ' bills, ₹' + inr(h.amount)">
+                        <div class="w-full bg-ioc-orange/80 rounded-t"
+                            [style.height.%]="hourBarHeight(h.bills)"></div>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">Hover a bar for hour, bill count and amount</p>
             </div>
-            <div *ngIf="!stockToday?.rows?.length" class="text-sm text-gray-500">
-                No stock rows yet. Open Stock and set opening stock by fuel type.
-            </div>
-            <div class="overflow-x-auto" *ngIf="stockToday?.rows?.length">
-                <table class="min-w-full text-sm">
-                    <thead class="bg-white/40 text-left text-xs uppercase text-gray-500">
-                        <tr>
-                            <th class="px-3 py-2">Fuel</th>
-                            <th class="px-3 py-2">Opening</th>
-                            <th class="px-3 py-2">Receipts</th>
-                            <th class="px-3 py-2">Sales</th>
-                            <th class="px-3 py-2">Closing</th>
-                            <th class="px-3 py-2">Unit</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let r of stockToday.rows" class="border-t">
-                            <td class="px-3 py-2 font-medium">{{ r.fuel_type }}</td>
-                            <td class="px-3 py-2">{{ r.opening_stock | number:'1.2-2' }}</td>
-                            <td class="px-3 py-2 text-green-700">+{{ r.receipts_today | number:'1.2-2' }}</td>
-                            <td class="px-3 py-2 text-red-600">-{{ r.sales_today | number:'1.2-2' }}</td>
-                            <td class="px-3 py-2 font-bold">{{ r.closing_stock | number:'1.2-2' }}</td>
-                            <td class="px-3 py-2">{{ r.unit }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+
+            <div class="panel-glass-static p-6 border-t-4 border-teal-500">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold text-gray-900">Staff today</h2>
+                    <a routerLink="/manpower" class="text-sm text-ioc-blue font-medium">Manpower →</a>
+                </div>
+                <div *ngIf="!ops.staff_today?.length" class="text-sm text-gray-500">No shifts started today.</div>
+                <div *ngFor="let s of ops.staff_today" class="border-b py-2 text-sm">
+                    <p class="font-bold text-gray-900">{{ s.name || '—' }}</p>
+                    <p class="text-gray-500">
+                        {{ s.active ? 'Active now' : 'Completed' }}
+                        <span *ngIf="s.start_time"> · from {{ s.start_time | date:'shortTime' }}</span>
+                    </p>
+                </div>
             </div>
         </div>
     </div>

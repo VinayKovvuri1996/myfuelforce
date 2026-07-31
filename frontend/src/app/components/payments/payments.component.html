@@ -1,0 +1,106 @@
+<div class="app-shell">
+    <nav class="nav-glass sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center gap-3">
+                        <img src="/assets/fuel-force-logo.jpg" alt="FuelForce Logo"
+                            class="h-10 w-auto rounded-md mr-2 border-2 border-white shadow-sm">
+                        <h1 class="text-2xl font-bold text-white tracking-wider brand-text">FuelForce</h1>
+                    </div>
+                    <div class="hidden sm:ml-10 sm:flex sm:space-x-4">
+                        <a routerLink="/dashboard" routerLinkActive="bg-white/15 text-white"
+                            class="text-gray-300 hover:bg-white/10 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                        <a routerLink="/customers" routerLinkActive="bg-white/15 text-white"
+                            class="text-gray-300 hover:bg-white/10 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Customers</a>
+                        <a routerLink="/sales" routerLinkActive="bg-white/15 text-white"
+                            class="text-gray-300 hover:bg-white/10 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Sales</a>
+                        <a routerLink="/payments" routerLinkActive="bg-white/15 text-white"
+                            class="text-gray-300 hover:bg-white/10 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Payments</a>
+                        <a routerLink="/stock" routerLinkActive="bg-white/15 text-white"
+                            class="text-gray-300 hover:bg-white/10 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Stock</a>
+                        <a routerLink="/manpower" routerLinkActive="bg-white/15 text-white"
+                            class="text-gray-300 hover:bg-white/10 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Manpower</a>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button (click)="refresh()" class="px-3 py-2 text-sm rounded-md text-white bg-blue-700 hover:bg-blue-600">Refresh</button>
+                    <button (click)="logout()" class="px-4 py-2 text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="page-title text-3xl">Payments & sales reports</h2>
+            <p class="page-subtitle">Confidential sales ₹ summaries and trends</p>
+        </div>
+
+        <div *ngIf="error" class="mb-4 p-3 bg-red-100/90 border-l-4 border-red-500 text-red-700 rounded">{{ error }}</div>
+        <div *ngIf="loading" class="panel-glass-static p-4 mb-4 text-sm text-gray-600">Loading reports…</div>
+
+        <div *ngIf="analytics" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="panel-glass-static border-t-4 border-ioc-orange p-4">
+                <p class="text-xs uppercase text-gray-500 font-semibold">Today</p>
+                <p class="text-2xl font-bold text-gray-900">₹{{ inr(analytics.today.amount) }}</p>
+                <p class="text-xs text-gray-500">{{ analytics.today.count }} bills</p>
+            </div>
+            <div class="panel-glass-static border-t-4 border-ioc-blue p-4">
+                <p class="text-xs uppercase text-gray-500 font-semibold">Yesterday</p>
+                <p class="text-2xl font-bold text-gray-900">₹{{ inr(analytics.yesterday.amount) }}</p>
+            </div>
+            <div class="panel-glass-static border-t-4 border-green-500 p-4">
+                <p class="text-xs uppercase text-gray-500 font-semibold">This Week</p>
+                <p class="text-2xl font-bold text-gray-900">₹{{ inr(analytics.this_week.amount) }}</p>
+            </div>
+            <div class="panel-glass-static border-t-4 border-teal-500 p-4">
+                <p class="text-xs uppercase text-gray-500 font-semibold">Last Week</p>
+                <p class="text-2xl font-bold text-gray-900">₹{{ inr(analytics.last_week.amount) }}</p>
+            </div>
+            <div class="panel-glass-static border-t-4 border-amber-500 p-4">
+                <p class="text-xs uppercase text-gray-500 font-semibold">This Month</p>
+                <p class="text-2xl font-bold text-gray-900">₹{{ inr(analytics.this_month.amount) }}</p>
+            </div>
+            <div class="panel-glass-static border-t-4 border-rose-500 p-4">
+                <p class="text-xs uppercase text-gray-500 font-semibold">Last Month</p>
+                <p class="text-2xl font-bold text-gray-900">₹{{ inr(analytics.last_month.amount) }}</p>
+            </div>
+            <div class="panel-glass-static border-t-4 border-cyan-500 p-4">
+                <p class="text-xs uppercase text-gray-500 font-semibold">This Year</p>
+                <p class="text-2xl font-bold text-gray-900">₹{{ inr(analytics.this_year.amount) }}</p>
+            </div>
+            <div class="panel-glass-static border-t-4 border-slate-500 p-4">
+                <p class="text-xs uppercase text-gray-500 font-semibold">All Time</p>
+                <p class="text-2xl font-bold text-gray-900">₹{{ inr(analytics.all_time.amount) }}</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" *ngIf="analytics">
+            <div class="lg:col-span-2 panel-glass-static p-6 border-t-4 border-ioc-blue">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">Sales — last 30 days (₹)</h3>
+                <div class="flex items-end gap-1 h-48" *ngIf="analytics?.daily_last_30?.length">
+                    <div *ngFor="let d of analytics.daily_last_30" class="flex-1 flex flex-col justify-end items-center"
+                        [title]="d.date + ': ₹' + inr(d.amount)">
+                        <div class="w-full bg-ioc-orange/80 hover:bg-ioc-orange rounded-t"
+                            [style.height.%]="barHeight(d.amount)"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-glass-static p-6 border-t-4 border-ioc-orange">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">Today by product</h3>
+                <div *ngIf="!analytics?.by_type_today?.length" class="text-sm text-gray-500">No sales yet today.</div>
+                <div *ngFor="let row of analytics?.by_type_today" class="mb-3">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="font-medium">{{ row.product_type }}</span>
+                        <span>₹{{ inr(row.amount) }}</span>
+                    </div>
+                    <div class="h-2 bg-gray-100 rounded">
+                        <div class="h-2 bg-ioc-blue rounded"
+                            [style.width.%]="analytics.today.amount ? (row.amount / analytics.today.amount * 100) : 0"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

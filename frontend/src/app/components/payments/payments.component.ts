@@ -5,16 +5,16 @@ import { AuthService } from '../../services/auth';
 import { ApiService } from '../../services/api';
 
 @Component({
-    selector: 'app-dashboard',
+    selector: 'app-payments',
     standalone: true,
     imports: [CommonModule, RouterModule],
-    templateUrl: './dashboard.component.html',
-    styleUrls: ['./dashboard.component.css']
+    templateUrl: './payments.component.html',
+    styleUrls: ['./payments.component.css']
 })
-export class DashboardComponent implements OnInit {
+export class PaymentsComponent implements OnInit {
     loading = true;
     error = '';
-    ops: any = null;
+    analytics: any = null;
 
     constructor(private authService: AuthService, private api: ApiService) { }
 
@@ -25,13 +25,13 @@ export class DashboardComponent implements OnInit {
     refresh() {
         this.loading = true;
         this.error = '';
-        this.api.get('sales/ops-today').subscribe({
+        this.api.get('sales/analytics').subscribe({
             next: (data) => {
-                this.ops = data;
+                this.analytics = data;
                 this.loading = false;
             },
             error: (err) => {
-                this.error = err?.error?.detail || 'Could not load dashboard';
+                this.error = err?.error?.detail || 'Could not load payment reports';
                 this.loading = false;
             }
         });
@@ -42,19 +42,13 @@ export class DashboardComponent implements OnInit {
         return n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    maxHourlyBills(): number {
-        const series = this.ops?.hourly || [];
-        return Math.max(1, ...series.map((d: any) => Number(d.bills || 0)));
+    maxDaily(): number {
+        const series = this.analytics?.daily_last_30 || [];
+        return Math.max(1, ...series.map((d: any) => Number(d.amount || 0)));
     }
 
-    hourBarHeight(bills: number): number {
-        return Math.max(2, (Number(bills || 0) / this.maxHourlyBills()) * 100);
-    }
-
-    hourLabel(h: number): string {
-        const ampm = h >= 12 ? 'pm' : 'am';
-        const hr = h % 12 === 0 ? 12 : h % 12;
-        return `${hr}${ampm}`;
+    barHeight(amount: number): number {
+        return Math.max(2, (Number(amount || 0) / this.maxDaily()) * 100);
     }
 
     logout() {

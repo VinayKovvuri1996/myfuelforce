@@ -8,6 +8,7 @@ class StockBase(BaseModel):
     unit: str = "Litre"
     quantity: float = 0.0
     capacity: float = 0.0
+    price_per_unit: float = 0.0
     station_id: Optional[int] = None
 
 
@@ -20,6 +21,7 @@ class StockUpdate(BaseModel):
     capacity: Optional[float] = None
     opening_quantity: Optional[float] = None
     unit: Optional[str] = None
+    price_per_unit: Optional[float] = None
 
 
 class Stock(StockBase):
@@ -48,6 +50,7 @@ class StockDayRow(BaseModel):
     sales_today: float
     closing_stock: float
     capacity: float
+    price_per_unit: float = 0.0
 
 
 class StockTodaySummary(BaseModel):

@@ -26,7 +26,8 @@ export class StockComponent implements OnInit {
             fuel_type: ['Petrol', Validators.required],
             opening_quantity: [0, [Validators.required, Validators.min(0)]],
             capacity: [0, [Validators.min(0)]],
-            unit: ['Litre', Validators.required]
+            unit: ['Litre', Validators.required],
+            price_per_unit: [null, [Validators.required, Validators.min(0.01)]]
         });
         this.receiptForm = this.fb.group({
             fuel_type: ['Petrol', Validators.required],
@@ -55,7 +56,8 @@ export class StockComponent implements OnInit {
             opening_quantity: v.opening_quantity,
             quantity: v.opening_quantity,
             capacity: v.capacity,
-            unit: v.unit
+            unit: v.unit,
+            price_per_unit: Number(v.price_per_unit)
         }).subscribe({
             next: () => {
                 this.success = `Opening stock saved for ${v.fuel_type}`;

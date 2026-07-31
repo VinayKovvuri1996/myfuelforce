@@ -107,11 +107,16 @@ def create_sale(sale: schemas.SaleCreate, db: Session = Depends(database.get_db)
 
     if mode == "Cheque" and not data.get("cheque_number"):
         raise HTTPException(status_code=400, detail="Cheque number is required for Cheque payments")
-    if mode in ("Bank Transfer", "RTGS", "PhonePe", "GPay") and not data.get("transaction_ref"):
+    if mode != "Credit" and not data.get("transaction_ref"):
         raise HTTPException(
             status_code=400,
             detail="Transaction ID / details are required for this payment mode",
         )
+    for required in ("bill_number", "bill_date", "bill_made_by", "supervisor_signed"):
+        if not data.get(required):
+            raise HTTPException(status_code=400, detail=f"{required.replace('_', ' ')} is required")
+    if data.get("advance_cash") is None:
+        raise HTTPException(status_code=400, detail="advance cash is required (use 0 if none)")
 
     db_sale = models.Sale(**data)
     db.add(db_sale)
@@ -134,11 +139,87 @@ def create_sale(sale: schemas.SaleCreate, db: Session = Depends(database.get_db)
             stock.opening_quantity = stock.quantity or 0.0
             stock.opening_date = today
         stock.quantity = (stock.quantity or 0.0) - sale.quantity_sold
+        stock.price_per_unit = float(sale.price_per_unit)
         stock.last_updated = datetime.utcnow()
 
     db.commit()
     db.refresh(db_sale)
     return db_sale
+
+
+@router.get("/ops-today")
+def ops_today(db: Session = Depends(database.get_db)):
+    """Operational dashboard payload (stock, staff, hourly busy, prices)."""
+    from ..hr import models as hr_models
+    from ..inventory import routes as inventory_routes
+
+    today = _utc_today()
+    start_dt, end_dt = _range_bounds(today, today)
+
+    stock_summary = inventory_routes.stock_today(db)
+    sales_today = _sum_sales(db, today, today)
+
+    # Hourly busy from bill timestamps
+    hourly = [{"hour": h, "bills": 0, "amount": 0.0} for h in range(24)]
+    today_sales = (
+        db.query(models.Sale)
+        .filter(models.Sale.timestamp >= start_dt, models.Sale.timestamp < end_dt)
+        .all()
+    )
+    for s in today_sales:
+        if not s.timestamp:
+            continue
+        h = s.timestamp.hour
+        hourly[h]["bills"] += 1
+        hourly[h]["amount"] += float(s.total_amount or 0.0)
+
+    # Staff on duty: shifts that started today or still active
+    shifts = (
+        db.query(hr_models.Shift)
+        .filter(
+            (hr_models.Shift.end_time.is_(None))
+            | (
+                (hr_models.Shift.start_time >= start_dt)
+                & (hr_models.Shift.start_time < end_dt)
+            )
+        )
+        .order_by(hr_models.Shift.start_time.desc())
+        .all()
+    )
+    staff = []
+    seen = set()
+    for sh in shifts:
+        key = sh.employee_id or sh.user_id
+        if key in seen:
+            continue
+        seen.add(key)
+        staff.append(
+            {
+                "name": sh.user_id,
+                "employee_id": sh.employee_id,
+                "start_time": sh.start_time.isoformat() if sh.start_time else None,
+                "end_time": sh.end_time.isoformat() if sh.end_time else None,
+                "active": sh.end_time is None,
+            }
+        )
+
+    prices = [
+        {
+            "fuel_type": r.fuel_type,
+            "unit": r.unit,
+            "price_per_unit": r.price_per_unit,
+        }
+        for r in stock_summary.rows
+    ]
+
+    return {
+        "business_date": today.isoformat(),
+        "sales_today": sales_today,
+        "stock": stock_summary.model_dump(),
+        "hourly": hourly,
+        "staff_today": staff,
+        "prices": prices,
+    }
 
 
 @router.get("", response_model=List[schemas.Sale])
@@ -158,7 +239,6 @@ def sales_analytics(db: Session = Depends(database.get_db)):
     today = _utc_today()
     yesterday = today - timedelta(days=1)
 
-    # Week: Monday-Sunday (ISO)
     this_week_start = today - timedelta(days=today.weekday())
     last_week_start = this_week_start - timedelta(days=7)
     last_week_end = this_week_start - timedelta(days=1)
@@ -172,7 +252,6 @@ def sales_analytics(db: Session = Depends(database.get_db)):
 
     this_year_start = today.replace(month=1, day=1)
     earlier_end = this_year_start - timedelta(days=1)
-
     all_time_start = date(2000, 1, 1)
 
     by_type = (

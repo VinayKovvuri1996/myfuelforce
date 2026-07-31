@@ -16,6 +16,8 @@
                         <a routerLink="/sales" routerLinkActive="bg-white/15 text-white"
                             class="text-gray-300 hover:bg-white/10 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">Sales
                             Entry</a>
+                        <a routerLink="/payments" routerLinkActive="bg-white/15 text-white"
+                            class="text-gray-300 hover:bg-white/10 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">Payments</a>
                         <a routerLink="/stock" routerLinkActive="bg-white/15 text-white"
                             class="text-gray-300 hover:bg-white/10 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">Stock</a>
                         <a routerLink="/manpower" routerLinkActive="bg-white/15 text-white"
@@ -177,11 +179,10 @@
                     <div *ngIf="showTxnFields" class="sm:col-span-2">
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="transaction_ref">
                             Transaction ID / details
-                            <span *ngIf="salesForm.value.payment_mode === 'Cash'" class="font-normal text-gray-500">(optional)</span>
                         </label>
                         <input id="transaction_ref" type="text" formControlName="transaction_ref" list="memory-transaction_ref"
                             class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700"
-                            [attr.placeholder]="salesForm.value.payment_mode === 'Cheque' ? 'Bank / clearing details (optional)' : 'UTR / UPI ref / transfer note'">
+                            [attr.placeholder]="salesForm.value.payment_mode === 'Cash' ? 'Cash receipt / slip no.' : (salesForm.value.payment_mode === 'Cheque' ? 'Bank / clearing details' : 'UTR / UPI ref / transfer note')">
                         <datalist id="memory-transaction_ref">
                             <option *ngFor="let s of suggestionsFor('transaction_ref')" [value]="s"></option>
                         </datalist>

@@ -58,11 +58,11 @@ export class SalesComponent implements OnInit, OnDestroy {
             price_per_unit: [null, [Validators.required, Validators.min(0.01)]],
             quantity_sold: [null, [Validators.required, Validators.min(0.01)]],
             total_amount: [{ value: null, disabled: true }],
-            bill_number: [''],
+            bill_number: ['', Validators.required],
             bill_date: [today, Validators.required],
-            supervisor_signed: [''],
+            supervisor_signed: ['', Validators.required],
             bill_made_by: ['', Validators.required],
-            advance_cash: [0],
+            advance_cash: [null, [Validators.required, Validators.min(0)]],
             payment_mode: ['Credit', Validators.required],
             cheque_number: [''],
             transaction_ref: ['']
@@ -156,7 +156,8 @@ export class SalesComponent implements OnInit, OnDestroy {
 
     updatePaymentFieldRules(mode: string) {
         this.showChequeFields = mode === 'Cheque';
-        this.showTxnFields = ['Bank Transfer', 'RTGS', 'PhonePe', 'GPay', 'Cheque', 'Cash'].includes(mode);
+        // Transaction details required for every settled mode; Credit has no txn fields.
+        this.showTxnFields = mode !== 'Credit';
 
         const chequeCtrl = this.salesForm.get('cheque_number');
         const txnCtrl = this.salesForm.get('transaction_ref');
@@ -165,12 +166,14 @@ export class SalesComponent implements OnInit, OnDestroy {
             chequeCtrl?.setValidators([Validators.required]);
         } else {
             chequeCtrl?.clearValidators();
+            chequeCtrl?.setValue('', { emitEvent: false });
         }
 
-        if (['Bank Transfer', 'RTGS', 'PhonePe', 'GPay'].includes(mode)) {
+        if (mode !== 'Credit') {
             txnCtrl?.setValidators([Validators.required]);
         } else {
             txnCtrl?.clearValidators();
+            txnCtrl?.setValue('', { emitEvent: false });
         }
 
         chequeCtrl?.updateValueAndValidity({ emitEvent: false });
@@ -297,7 +300,7 @@ export class SalesComponent implements OnInit, OnDestroy {
                     bill_date: today,
                     supervisor_signed: '',
                     bill_made_by: '',
-                    advance_cash: 0,
+                    advance_cash: null,
                     payment_mode: 'Credit',
                     cheque_number: '',
                     transaction_ref: ''
