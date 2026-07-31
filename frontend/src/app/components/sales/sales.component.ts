@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApiService } from '../../services/api';
 import { RouterModule, ActivatedRoute } from '@angular/router';
+import { NavBrandComponent } from '../nav-brand/nav-brand.component';
 
 const MEMORY_KEY = 'fuelforce_sales_field_memory';
 
 @Component({
     selector: 'app-sales',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, RouterModule],
+    imports: [CommonModule, ReactiveFormsModule, RouterModule, NavBrandComponent],
     templateUrl: './sales.component.html',
     styleUrls: ['./sales.component.css']
 })

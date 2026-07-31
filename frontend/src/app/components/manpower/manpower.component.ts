@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApiService } from '../../services/api';
 import { RouterModule } from '@angular/router';
+import { NavBrandComponent } from '../nav-brand/nav-brand.component';
 
 @Component({
     selector: 'app-manpower',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, RouterModule],
+    imports: [CommonModule, ReactiveFormsModule, RouterModule, NavBrandComponent],
     templateUrl: './manpower.component.html',
     styleUrls: ['./manpower.component.css']
 })

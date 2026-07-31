@@ -3,12 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApiService } from '../../services/api';
 import { RouterModule } from '@angular/router';
+import { NavBrandComponent } from '../nav-brand/nav-brand.component';
 import { timeout, firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-customers',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, RouterModule],
+    imports: [CommonModule, ReactiveFormsModule, RouterModule, NavBrandComponent],
     templateUrl: './customers.component.html',
     styleUrls: ['./customers.component.css']
 })

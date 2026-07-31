@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ApiService } from '../../services/api';
+import { NavBrandComponent } from '../nav-brand/nav-brand.component';
 
 @Component({
     selector: 'app-stock',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, RouterModule],
+    imports: [CommonModule, ReactiveFormsModule, RouterModule, NavBrandComponent],
     templateUrl: './stock.component.html',
     styleUrls: ['./stock.component.css']
 })
